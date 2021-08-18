@@ -6,7 +6,6 @@
     - [1.1 本地Kubernetes集群应用和数据的日常备份与恢复](#11-本地Kubernetes集群应用和数据的日常备份与恢复)
     - [1.2 在其它Kubernetes集群中恢复应用和数据](#12-在其它Kubernetes集群中恢复应用和数据)
     - [1.3 应用的跨云迁移](#13-应用的跨云迁移)
-
 - [2. 运行环境与兼容性](#2-运行环境与兼容性)
 - [3. 配置集群与备份仓库](#3-配置集群与备份仓库)
     - [3.1 配置待保护Kubernetes集群](#31-配置待保护Kubernetes集群)
@@ -30,9 +29,10 @@
     - [7.3 查看迁移作业](#73-查看迁移作业)
     - [7.4 修改相应应用信息](#74-修改相应应用信息)
     - [7.5 钩子程序](#75-钩子程序)
-- [8. 故障与诊断](#8-故障与诊断)
-    - [8.1 日志收集](#81-日志收集)
-    - [8.2 常见问题](#82-常见问题)
+- [8. 产品限制](#8-产品限制)
+- [9. 故障与诊断](#9-故障与诊断)
+    - [9.1 日志收集](#91-日志收集)
+    - [9.2 常见问题](#92-常见问题)
 
 ## 1. 银数多云数据管家典型用户场景介绍
 
@@ -78,10 +78,10 @@
 
 目前YS1000 Beta版支持管理的Kubernetes版本、对象存储以及主存储如下表所示：
 
-| Kubernetes发行版      | S3对象存储                | 云原生存储    |
-| --------------------- | ------------------------- | ------------- |
-| Kubernetes社区版1.18+ | S3兼容的对象存储（minio） | NFS           |
-|                       |                           | Rook Ceph 1.4 |
+| Kubernetes发行版      | S3对象存储                          | 云原生存储    | Snapshot CRD |
+| --------------------- | ----------------------------------- | ------------- | ------------ |
+| Kubernetes社区版1.17+ | S3兼容的对象存储（minio，qingstor） | NFS           | v1beta1      |
+|                       |                                     | Rook Ceph 1.4 | v1           |
 
 ## 3. 配置集群与备份仓库
 
@@ -487,13 +487,17 @@ YS1000 Beta版本支持采用文件系统拷贝或者快照的方式进行持久
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/wp_after_mig.png)
 
-## 8. 故障与诊断
+## 8. 产品限制
 
-### 8.1 日志收集
+-   PVC的类型暂时不支持Host Path方式
+
+## 9. 故障与诊断
+
+### 9.1 日志收集
 
 TBD
 
-### 8.2 常见问题
+### 9.2 常见问题
 
 - 快照备份不工作  
     可能原因：快照的SnapshotClass没配好，比如没有加所需要的label。  
@@ -509,3 +513,12 @@ TBD
 - 执行应用迁移时，待迁移的应用的PVC的`DataSource`不能是`VolumeSnapshot`，否则迁移会一直卡在目标集群的恢复阶段。  
     原因：如果待迁移的应用是通过CSI快照方式恢复出来的，PVC的`DataSource`就会变成`VolumeSnapshot`，这时候再迁移就会出问题。  
     解决方法：要确保待迁移的应用没有被恢复过，或者是文件系统的方式恢复的。
+
+- 部署到k8s集群时，velero不能正常运行，并且报`unexpected directory structure for host-pods volume ...`的错误    
+    原因：这是由于k8s在安装时，没有使用标准的`/var/lib/kubelet/pods/`的目录格式。     
+    解决方法：执行`mount -l | grep kubelet`，找到集群实际的Pod的路径，例如`/var/k8s/kubelet/pods/`，然后执行：
+    ```bash
+    kubectl patch ds/restic --namespace qiming-migration --type json -p  '[{"op":"replace","path":"/spec/template/spec/volumes/0/hostPath","value": { "path": "/var/k8s/kubelet/pods"}}]'
+    ```
+
+    

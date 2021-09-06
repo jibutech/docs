@@ -490,6 +490,7 @@ YS1000 Beta版本支持采用文件系统拷贝或者快照的方式进行持久
 ## 8. 产品限制
 
 -   PVC的类型暂时不支持Host Path方式
+-   如果PVC的dataSource是VolumeSnapshot，或者备份是VolumeSnapshot方式，恢复时候不能改namespace
 
 ## 9. 故障与诊断
 

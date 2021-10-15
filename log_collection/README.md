@@ -5,7 +5,28 @@ NOTE: namespace can be changed by customized helm install.
 
 Velero is installed in `qiming-backend` on each kubernetes cluster. 
 
+**TBD: wrap the following instructions as a log collector script to simplify log collection.**
+
 ## collect logs for YS1000 components
+
+1. download log collector deployment yaml and update the service account from `qiming-migration`.
+
+```bash
+[root@gyj-dev ~]# wget https://raw.githubusercontent.com/jibutech/docs/main/log_collection/server-log-collector.yaml
+
+[root@gyj-dev ~]# kubectl -n qiming-migration get sa
+NAME                         SECRETS   AGE
+default                      1         23d
+qiming-operator-1634274895   1         10s
+
+# replace serviceAccountName from "qiming-operator" to "qiming-operator-1634274895" in downloaded server-log-collector.yaml
+
+[root@gyj-dev ~]# grep serviceAccountName server-log-collector.yaml
+      serviceAccountName: qiming-operator-1634274895
+
+```
+
+2. deploy log collector pod and execute log command.
 
 ```bash
 
@@ -50,12 +71,20 @@ Compress logs to /tmp/qiming-migration-logs-1634224404.41.tar
 ```
 
 
-## collect velero logs on each k8s cluster
+## collect velero resources and logs on each k8s cluster
+
+1. download log collector deployment yaml.
+
+```bash
+[root@gyj-dev ~]# wget https://raw.githubusercontent.com/jibutech/docs/main/log_collection/client-log-collector.yaml
+```
+
+2. deploy log collector pod and execute log command.
 
 ```bash
 
 # install log collector for velero
-[root@gyj-dev ~]# kubectl apply -f ./server-log-collector.yaml
+[root@gyj-dev ~]# kubectl apply -f ./client-log-collector.yaml
 
 # check log collector pod status
 [root@gyj-dev ~]#  kubectl -n qiming-backend get pods

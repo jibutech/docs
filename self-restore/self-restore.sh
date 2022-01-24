@@ -1,21 +1,20 @@
 #!/bin/bash
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 1 ]; then
     echo "Illegal number of parameters"
-    echo "Usage: ./hack/restore-application.sh <namespace> <backupname>"
+    echo "Usage: ./hack/restore-application.sh <backupname>"
     exit 1
-fi 
+fi
 
-namespace=$1
-backupname=$2
+backupname=$1
 veleroNamespace=qiming-backend
 timeout=600
 
 date="$(date +%s)"
-veleroInstallerPodName=`kubectl get -n "$namespace" pods | grep qiming-operator-velero-installer | awk '{print $1}'`
+veleroInstallerPodName=`kubectl get -n "$veleroNamespace" pods -l app=velero-installer |grep Running | awk '{print $1}'`
 restoreName=restore-${date}
 echo "`date` Trigger velero restore on backup $backupname ..."
-kubectl exec -n "$namespace" -it "$veleroInstallerPodName" -- bash -c "./qiming/velero restore create ${restoreName} --from-backup ${backupname}"
+kubectl exec -n "$veleroNamespace" -it "$veleroInstallerPodName" -- bash -c "./qiming/velero restore create ${restoreName} --from-backup ${backupname}"
 restoreStatus=`kubectl get -n $namespace restores.velero.io $restoreName -o=jsonpath='{.status.phase}'`
 restoreTimeout=$(($date + $timeout))
 while [[ "$restoreStatus" != "Completed" ]]; do

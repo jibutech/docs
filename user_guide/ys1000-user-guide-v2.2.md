@@ -1,4 +1,4 @@
-# 银数多云数据管家2.4版使用说明书
+# 银数多云数据管家2.2版使用说明书
 
 ## 目录结构
 
@@ -201,44 +201,9 @@ parameters:
 deletionPolicy: Retain 
 ```
 
-**其中，SnapshotClass的`deletionPolicy`必须是`Retain`，并且加上velero需要的label (`velero.io/csi-volumesnapshot-class: "true"`)，这样后面在配置备份时候，会协调velero来产生并备份PV的快照。**
+**其中，SnapshotClass的`deletionPolicy`必须是`Retain`，并且加上velero需要的label，这样后面在配置备份时候，会协调velero来产生并备份PV的快照。**
 
-第二步，检查Storageclass和Volumesnapshotclass对应关系。
-
-查看Storageclass的provisioner名字, 这里是 `rook-ceph.rbd.csi.ceph.com`
-
-```bash
-bash# kubectl get sc rook-ceph-block -oyaml |yq .provisioner
-rook-ceph.rbd.csi.ceph.com
-```
-
-查看Volumesnapshotclass的driver名字, 这里是 `rook-ceph.rbd.csi.ceph.com`
-
-```bash
-bash# kubectl get volumesnapshotclasses csi-rbdplugin-snapclass -oyaml |yq .driver
-rook-ceph.rbd.csi.ceph.com
-```
-
-如果Storageclass的provisioner名字和Volumesnapshotclass的driver名字相同(例如ceph), 则跳到第三步; 如果不同(例如华为云csi-disk)则需要在Volumesnapshotclass添加annotation (`velero.io/csi-volumesnapshot-class-provisioner`), 对应的值为storageclass的provisioner名字。例子如下：
-
-```yaml
-apiVersion: snapshot.storage.k8s.io/v1beta1
-kind: VolumeSnapshotClass
-metadata:
- name: csi-disk-snapclass
- annotations:
-   velero.io/csi-volumesnapshot-class-provisioner: "everest-csi-provisioner"
- labels:
-  velero.io/csi-volumesnapshot-class: "true"
-driver: disk.csi.everest.io
-parameters:
- ...
-deletionPolicy: Retain 
-```
-
-第三步，配置Volumesnapshot CRD。
-
-首先检查集群是否已经配置了Volumesnapshot CRD，如果已经配置，则跳过此步骤。
+第二步，配置Volumesnapshot CRD。
 
 目前，银数多云数据管家支持的Snapshot CRD版本为v1beta1。
 
@@ -593,7 +558,7 @@ YS1000 2.2版本的备份方式除了仍支持基于存储快照的备份和基�
 
 -   PVC的类型暂时不支持Host Path方式
 
--   如果PVC的dataSource是VolumeSnapshot，无法迁移或恢复到异地
+-   如果PVC的dataSource是VolumeSnapshot，或者备份是VolumeSnapshot方式，恢复时候不能改namespace
 
 -   如果Pod自带有emptyDir类型的Volume，备份会出错
 

@@ -591,6 +591,8 @@ YS1000 2.2版本的备份方式除了仍支持基于存储快照的备份和基�
 ## 10. 产品限制
 
 
+-   每个备份中最多包含 10个namespace，100个pod， 100个pvc
+-   
 -   PVC的类型暂时不支持Host Path方式
 
 -   如果PVC的dataSource是VolumeSnapshot，无法迁移或恢复到异地

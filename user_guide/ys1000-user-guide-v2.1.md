@@ -1,4 +1,4 @@
-# 银数多云数据管家2.4版使用说明书
+# 银数多云数据管家2.0版使用说明书
 
 ## 目录结构
 
@@ -15,9 +15,8 @@
     - [4.4 配置快照](#44-配置快照)
 - [5. 备份设置](#5-备份设置)
     - [5.1 创建备份策略](#51-创建备份策略)
-    - [5.2 创建备份任务](#52-创建备份任务)
-    - [5.3 执行备份任务](#53-执行备份任务)
-    - [5.4 查看备份作业](#54-查看备份作业)
+    - [5.2 执行备份任务](#52-执行备份任务)
+    - [5.3 查看备份作业](#53-查看备份作业)
 - [6. 恢复至本集群](#6-恢复至本集群)
     - [6.1 创建应用恢复任务](#61-创建应用恢复任务)
     - [6.2 执行应用恢复任务](#62-执行应用恢复任务)
@@ -31,13 +30,11 @@
     - [8.3 查看迁移作业](#83-查看迁移作业)
     - [8.4 修改相应应用信息](#84-修改相应应用信息)
     - [8.5 钩子程序](#85-钩子程序)
-- [9. 配置作业报告](#9-配置作业报告)
-- [10. YS1000的自备份与恢复](#10-YS1000的自备份与恢复)
-- [11. 产品限制](#11-产品限制)
-- [12. 故障与诊断](#12-故障与诊断)
-    - [12.1 日志收集](#121-日志收集)
-    - [12.2 常见问题](#122-常见问题)
-
+- [9. YS1000的自备份与恢复](#9-YS1000的自备份与恢复)
+- [10. 产品限制](#10-产品限制)
+- [11. 故障与诊断](#11-故障与诊断)
+    - [11.1 日志收集](#111-日志收集)
+    - [11.2 常见问题](#112-常见问题)
 
 ## 1. 银数多云数据管家典型用户场景介绍
 
@@ -79,14 +76,14 @@
 
 ## 2. 运行环境与兼容性
 
-推荐使用Firefox访问银数多云数据管家2.2版控制台。
+推荐使用Firefox访问银数多云数据管家2.0版控制台。
 
-目前YS1000 2.2版支持管理的Kubernetes版本、对象存储以及主存储如下表所示：
+目前YS1000 2.0版支持管理的Kubernetes版本、对象存储以及主存储如下表所示：
 
 | Kubernetes发行版   | S3对象存储                          | 云原生存储    | Snapshot CRD |
 | ------------------ | ----------------------------------- | ------------- | ------------ |
-| k8s社区版1.17-1.21 | S3兼容的对象存储（minio，qingstor） | NFS           | v1beta1      |
-|                    |                                     | Rook Ceph 1.4-1.8 | v1           |
+| k8s社区版1.15-1.21 | S3兼容的对象存储（minio，qingstor） | NFS           | v1beta1      |
+|                    |                                     | Rook Ceph 1.4 | v1           |
 
 ## 3. 软件配置与授权
 
@@ -103,13 +100,11 @@
 
 第一步，从左侧菜单栏中选择“集群信息”进入集群配置页面：
 
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/cluster-config-2.4.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/cluster-config-beta.png)
 
 第二步，点击“添加集群”按钮进入集群添加页面：
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/add-cluster-2.4.png)
-
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/add-cluster-beta.png)
 
 “集群名称”请输入待保护Kubernetes集群名称。
 
@@ -130,21 +125,13 @@ kubectl -n kube-system describe secret $(sudo kubectl -n kube-system get secret 
 
 第三步，点击“保存”按钮，YS1000会自动对待保护Kubernetes集群进行连接测试，如果连接成功，在状态栏会显示“连接成功”。
 
-
-如果需要修改集群的镜像源，可以勾选“替换镜像源”，并填入需要替换的url（但是路径和tag需要与原image保持一致），如果原image试docker默认缩写地址，则不做替换。
-
-如果需要添加集群的网络限速，可以勾选“网速限制”，并填入限速速度和限速时段（当前版本仅支持每天一个时间段的限速）
-
-
 ### 4.2 配置备份仓库
 
 银数多云数据管家支持兼容S3接口的对象存储作为数据备份仓库。
 
 第一步，从左侧菜单栏中选择“数据备份仓库”进入数据备份仓库配置页面：
 
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/s3-config-2.4.png)
-
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/config-s3-beta.png)
 
 第二步，点击“创建备份仓库”按钮进入备份仓库添加页面：
 
@@ -214,44 +201,9 @@ parameters:
 deletionPolicy: Retain 
 ```
 
-**其中，SnapshotClass的`deletionPolicy`必须是`Retain`，并且加上velero需要的label (`velero.io/csi-volumesnapshot-class: "true"`)，这样后面在配置备份时候，会协调velero来产生并备份PV的快照。**
+其中，SnapshotClass的`deletionPolicy`必须是`Retain`，并且加上velero需要的label，这样后面在配置备份时候，会协调velero来产生并备份PV的快照。
 
-第二步，检查Storageclass和Volumesnapshotclass对应关系。
-
-查看Storageclass的provisioner名字, 这里是 `rook-ceph.rbd.csi.ceph.com`
-
-```bash
-bash# kubectl get sc rook-ceph-block -oyaml |yq .provisioner
-rook-ceph.rbd.csi.ceph.com
-```
-
-查看Volumesnapshotclass的driver名字, 这里是 `rook-ceph.rbd.csi.ceph.com`
-
-```bash
-bash# kubectl get volumesnapshotclasses csi-rbdplugin-snapclass -oyaml |yq .driver
-rook-ceph.rbd.csi.ceph.com
-```
-
-如果Storageclass的provisioner名字和Volumesnapshotclass的driver名字相同(例如ceph), 则跳到第三步; 如果不同(例如华为云csi-disk)则需要在Volumesnapshotclass添加annotation (`velero.io/csi-volumesnapshot-class-provisioner`), 对应的值为storageclass的provisioner名字。例子如下：
-
-```yaml
-apiVersion: snapshot.storage.k8s.io/v1beta1
-kind: VolumeSnapshotClass
-metadata:
- name: csi-disk-snapclass
- annotations:
-   velero.io/csi-volumesnapshot-class-provisioner: "everest-csi-provisioner"
- labels:
-  velero.io/csi-volumesnapshot-class: "true"
-driver: disk.csi.everest.io
-parameters:
- ...
-deletionPolicy: Retain 
-```
-
-第三步，配置Volumesnapshot CRD。
-
-首先检查集群是否已经配置了Volumesnapshot CRD，如果已经配置，则跳过此步骤。
+第二步，配置Volumesnapshot CRD。
 
 目前，银数多云数据管家支持的Snapshot CRD版本为v1beta1。
 
@@ -281,91 +233,65 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ## 5. 备份设置
 
+在银数多云数据管家左侧菜单栏中选择“集群应用备份”进入备份页面。
 
-YS1000 v2.4.0新版本中，创建备份计划前需要先创建备份策略。
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-page-beta.png)
 
 ### 5.1 创建备份策略
 
-在银数多云数据管家左侧菜单栏中选择“备份策略”进入备份策略页面。
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-config-2.4.png)
-
-第一步，点击“创建备份策略”按钮进入备份策略添加页面：
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-2.4.png)
-
-YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间资源，也可以选择仅备份PVC数据卷或仅备份K8S资源。
-
-注意：若选择默认备份，则恢复时可恢复全部资源，或者选择仅恢复部分资源；
-     若选择仅备份PVC数据卷，则恢复时只能对应选择仅恢复PVC数据卷；
-     若选择仅备份K8S资源，则恢复时只能对应选择部分K8S资源.
-
-备份方法除了仍支持基于存储快照的备份和基于文件拷贝的备份，还新增了存储快照备份+后台数据导出的高级模式。
-
-如需使用快照备份+后台数据导出的方式：备份方法选择“快照拷贝”，“是否导出快照”选择“是”，需要设置“导出频率”和“导出时间”，
-则该时间段内新增的所有快照将在备份执行完成后自动导出到备份仓库。
-
-第二步，填写完成所需策略参数后点击“保存”，可查看策略页面新增的策略。
-
-### 5.2 创建备份任务
-
-在银数多云数据管家左侧菜单栏中选择“集群应用备份”进入备份页面。
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-config-2.4.png)
-
 第一步，点击“创建应用备份任务”按钮进入备份任务添加页面：
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-create-2.4.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-config1-beta.png)
 
 用户需要输入备份任务的名称，选择待保护的集群，以及备份目标仓库。
 
-备份方式支持按需备份和定时备份:
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-config2-beta.png)
 
-- 按需备份由用户按照需求手动点击“备份”来触发备份作业。
+同时，用户需要选择备份策略和备份保留时长。
 
-- 定时备份由系统按照用户指定的备份策略触发备份作业。
+YS1000 2.0版支持两种备份策略：按需备份和定时备份。
+
+- 按需备份由用户按照需求来触发备份作业。
+
+- 定时备份由系统按照用户指定的备份频率自动触发备份作业。选择定时备份时，必须指定备份频率。
 
  当备份数据超过指定备份保留时长后，相关的备份数据将被系统自动删除。
- 
-最后选择备份策略，前端显示相应策略参数。
 
+ 第二步，点击“下一步”选择需要备份的命名空间。
 
-第二步，点击“下一步”选择需要备份的命名空间。
+用户通过单选框选择需要备份的命名空间，目前银河数据平台2.0版只支持同时备份一个命名空间。
 
 用户可以通过“筛选”按钮对命名空间进行筛选，或者通过搜索栏搜索相关名称快速找到需要备份的命名空间。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-3.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-config3-beta.png)
 
 第三步，点击“下一步”确认需要备份的持久卷。
 
 系统会自动选择出用户指定命名空间中使用到的持久卷，用户可以进行确认。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-4.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-config4-beta.png)
 
-第四步，点击“下一步”确认持久卷的备份方法。
+第四步，点击“下一步”选择持久卷的备份方法。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-5.png)
+YS1000 2.0版本支持采用文件系统拷贝或者快照的方式进行持久卷备份。（**注意：采用快照方式备份的数据，恢复时只能恢复回备份集群，不支持跨集群恢复和迁移**）
 
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-config-fs-beta.png)
 
-第五步，点击“下一步”选择备份前保护数据库一致性（目前仅支持mysql和mongodb，后续开放postgresql）。
+如果要选择快照方式进行备份，请首先按照3.4节“配置快照”进行配置，然后在“复制方法”选择`Volume snapshot`方式。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-6.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-pv-snap-beta.png)
 
-第六步，跳过钩子程序直接点击完成（从YS1000 2.2版本开始提供了数据一致性保护的默认钩子，但目前无法与自定义钩子程序同时使用，如需使用则需跳过数据一致性保护后创建）
+第五步，点击“下一步”选择备份前可以执行的钩子程序。
 
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-7.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-hook-beta.png)
 
 点击“完成”按钮后，备份任务创建成功，系统会自动对备份任务进行验证。
 
-
-
-### 5.3 执行备份任务
+### 5.2 执行备份任务
 
 对于定时备份策略，系统会自动按照定时设定进行备份。同时，用户可以选择备份任务手动触发备份作业。
 
-在备份页面中，选择对应备份任务的“<img src="https://gitee.com/jibutech/tech-docs/raw/master/images/backup-button-2.4.png" style="zoom:50%;" />”列，在操作中选择“备份”，即可触发备份作业。
-
+在备份页面中，选择对应备份任务的“<img src="https://gitee.com/jibutech/tech-docs/raw/master/images/backup-column.png" style="zoom:50%;" />”列，在操作中选择“备份”，即可触发备份作业。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/start-backup-beta.png)
 
@@ -373,53 +299,51 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-confirm-beta.png)
 
-
-### 5.4 查看备份作业
+### 5.3 查看备份作业
 
 在备份页面中，点击“备份任务”栏的链接，即可查看备份作业的执行情况。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-started-2.4.png)
-
-备份任务成功后，可点击右侧“恢复”按钮进行恢复。
-
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-started-beta.png)
 
 ## 6. 恢复至本集群
 
 从备份恢复应用至本集群一般在本地应用出现故障时使用（如命名空间被意外删除等），恢复往往无需进行应用资源本身相关的修改（如对外服务的域名和端口等）。
 
+在YS1000左侧菜单栏中选择“集群应用恢复”进入恢复页面。
 
-在成功的备份任务右侧点击“恢复”按钮进入恢复创建页面。
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore-button-2.4.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore-page-beta.png)
 
 ### 6.1 创建应用恢复任务
 
-第一步，点击“恢复”按钮进入应用恢复任务添加页面：
+第一步，点击“创建应用恢复任务”按钮进入应用恢复任务添加页面：
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore1-2.4.png)
-
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore-config1-beta.png)
 
 输入应用恢复任务名称，并选择目标恢复集群，此处选择本地kubernetes集群。
 
-这里可以勾选对命名空间进行修改（**注意功能只适用于单个命名空间的备份**）。
+这里可以指定对命名空间进行修改（**注意，如果使用快照方式进行备份，恢复时不能修改命名空间**），修改的格式为“源命名空间名：目标命名空间名”，以下是一个例子：
 
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore-config-ns-beta.png)
 
-第二步，点击下一步并选择恢复资源（注意不同备份任务对应的恢复资源限制不同，参见备份资源选择）
+第二步，点击下一步并选择一个备份任务。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore2-2.4.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore-select-backup-beta.png)
 
-第三步，点击“下一步”选择应用恢复后可以执行的钩子程序。
+第三步，点击“下一步”选择需要一个已完成的备份作业。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore3-2.4.png)
+用户可以根据备份作业对应的时间、命名空间等信息选择自己需要的备份数据。
 
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore-select-backupjob-beta.png)
+
+第四步，点击“下一步”选择应用恢复后可以执行的钩子程序。
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore-hook-beta.png)
 
 点击“完成”按钮后，恢复任务创建成功，系统会自动对恢复任务进行验证。
 
 ### 6.2 执行应用恢复任务
 
-
-在应用恢复页面中，选择恢复任务列的链接，在相应恢复作业的"<img src="https://gitee.com/jibutech/tech-docs/raw/master/images/restore-activate-2.4.png" style="zoom:50%;" />"列操作中选择“激活”，即可触发任务恢复作业。
-
+在应用恢复页面中，选择恢复任务列的链接，在相应恢复作业的"<img src="https://gitee.com/jibutech/tech-docs/raw/master/images/backup-column.png" style="zoom:50%;" />"列操作中选择“激活”，即可触发任务恢复作业。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/start-restore-beta.png)
 
@@ -449,9 +373,7 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
 
 在银数多云数据管家左侧菜单栏中选择“跨集群应用迁移”进入应用迁移页面。
 
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/mig-config-2.4.png)
-
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/mig-page-beta.png)
 
 ### 8.1 创建迁移任务
 
@@ -465,7 +387,7 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
 
 第二步，点击“下一步”选择需要迁移的命名空间。
 
-用户通过多选框选择需要迁移的命名空间，目前银数多云数据管家2.2版支持同时迁移多个命名空间。
+用户通过单选框选择需要备份的命名空间，目前银数多云数据管家2.0版只支持同时迁移一个命名空间。
 
 用户可以通过“筛选”按钮对命名空间进行筛选，或者通过搜索栏搜索相关名称快速找到需要备份的命名空间。
 
@@ -479,7 +401,7 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
 
 第四步，点击“下一步”选择持久卷的拷贝方法。
 
-银数多云数据管家2.2版本支持文件系统拷贝的方式进行跨集群迁移。用户需要选择目标集群上应用恢复时需要使用的StorageClass。目标端集群使用的StorageClass和源端集群使用的StorageClass可以不同。
+银数多云数据管家2.0版本只支持文件系统拷贝的方式进行跨集群迁移。用户需要选择目标集群上应用恢复时需要使用的StorageClass。目标端集群使用的StorageClass和源端集群使用的StorageClass可以不同。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/mig-sel-sc-beta.png)
 
@@ -559,7 +481,7 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
 
 此例中 `velero` 服务账户具有 cluster admin 权限，因此可以通过 ansible 脚本登录到目标容器 (wordpress命名空间中的 mysql pod) 进行操作。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2hook-4.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/add_hook_4.png)
 
 
 5. **创建**完成后，返回迁移任务向导页面，在钩子程序页面显示创建结果，之后点击 **完成** 按钮，参考 [7.2 执行迁移任务](#72-执行迁移任务) 执行迁移操作
@@ -576,23 +498,7 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/wp_after_mig.png)
 
-
-## 9. 配置作业报告
-
-在银数多云数据管家左侧菜单栏中选择“配置”进入配置页面。
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/config-2.4.png)
-
-目前支持配置邮件和微信报告。
-
-在创建邮件报告中，填写正确smtp地址和port，以及发送人邮箱地址和对应授权码。
-
-在创建微信报告中，填写正确微信地址。
-
-填写发送时间（目前仅支持每天指定一个时间点），打开启用，点击“保存”，便可在该时间点收到每天的作业执行报告。
-
-## 10. YS1000的自备份与恢复
-
+## 9. YS1000的自备份与恢复
 
 -   第一步，在宿主集群上打开自备份功能
 
@@ -626,10 +532,10 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
 
 -   第三步，在新集群上成功安装ys1000并配置指向原数据备份仓库S3之后，使用`self-restore.sh`脚本进行恢复
     
-    https://github.com/jibutech/docs/tree/release-2.2/self-restore
+    https://github.com/jibutech/docs/blob/main/self-restore/self-restore.sh
     
     ```
-    [root@remote-master home]# ./self-restore.sh ys1000-backup-1636968455
+    [root@remote-master home]# ./self-restore.sh qiming-migration ys1000-backup-1636968455
     2021年 11月 15日 星期一 17:55:02 CST Trigger velero restore on backup ys1000-backup-1636968455 ...
     Restore request "restore-1636970102" submitted successfully.
     Run `velero restore describe restore-1636970102` or `velero restore logs restore-1636970102` for more details.
@@ -642,15 +548,13 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
     ```
 
 
+## 10. 产品限制
 
-## 11. 产品限制
-
-
--   每个备份中最多包含 10个namespace，100个pod， 100个pvc
+-   目前YS1000暂时只支持配置一个S3的对象存储，如果配置多个，则每个对象存储的登录方式必须相同。
 
 -   PVC的类型暂时不支持Host Path方式
 
--   如果PVC的dataSource是VolumeSnapshot，无法迁移或恢复到异地
+-   如果PVC的dataSource是VolumeSnapshot，或者备份是VolumeSnapshot方式，恢复时候不能改namespace
 
 -   如果Pod自带有emptyDir类型的Volume，备份会出错
 
@@ -658,15 +562,13 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
 
     `kubectl -n <namespace> annotate pod/<podname> backup.velero.io/backup-volumes-excludes=<volumename>`
 
+## 11. 故障与诊断
 
-## 12. 故障与诊断
-
-### 12.1 日志收集
+### 11.1 日志收集
 
 请参考 https://github.com/jibutech/docs/tree/main/log_collection#readme 部署日志收集容器镜像，执行日志收集命令后发送给技术支持人员。
 
-### 12.2 常见问题
-
+### 11.2 常见问题
 
 - 快照备份不工作  
     可能原因：快照的SnapshotClass没配好，比如没有加所需要的label。  
@@ -689,10 +591,5 @@ YS1000 2.4版本支持选择备份资源类型，默认备份完整命名空间�
     ```bash
     kubectl patch ds/restic --namespace qiming-migration --type json -p  '[{"op":"replace","path":"/spec/template/spec/volumes/0/hostPath","value": { "path": "/var/k8s/kubelet/pods"}}]'
     ```
-- 备份一个k8s版本 >= 1.21 集群上的应用，再恢复到一个 k8s版本 <= 1.20 的集群上后，应用中pod无法正常running的问题，参考：
-
-  https://velero.cn/d/37-k8s-121-beta-feature-boundserviceaccounttokenvelerorestic
-  
-
 
     

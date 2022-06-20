@@ -325,27 +325,27 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 用户可以通过“筛选”按钮对命名空间进行筛选，或者通过搜索栏搜索相关名称快速找到需要备份的命名空间。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-3.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-create-2-2.6.png)
 
 第三步，点击“下一步”确认需要备份的持久卷。
 
 系统会自动选择出用户指定命名空间中使用到的持久卷，用户可以进行确认。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-4.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-create-3-2.6.png)
 
 第四步，点击“下一步”确认持久卷的备份方法。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-5.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-create-4-2.6.png)
 
 
 第五步，点击“下一步”选择备份前保护数据库一致性（目前仅支持mysql和mongodb，后续开放postgresql）。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-6.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-create-5-2.6.png)
 
 第六步，跳过钩子程序直接点击完成（从YS1000 2.2版本开始提供了数据一致性保护的默认钩子，但目前无法与自定义钩子程序同时使用，如需使用则需跳过数据一致性保护后创建）
 
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/2.2backup-7.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-create-6-2.6.png)
 
 点击“完成”按钮后，备份任务创建成功，系统会自动对备份任务进行验证。
 
@@ -355,21 +355,20 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 对于定时备份策略，系统会自动按照定时设定进行备份。同时，用户可以选择备份任务手动触发备份作业。
 
-在备份页面中，选择对应备份任务的“<img src="https://gitee.com/jibutech/tech-docs/raw/master/images/backup-button-2.4.png" style="zoom:50%;" />”列，在操作中选择“备份”，即可触发备份作业。
+在备份页面中，选择对应备份任务的“<img src="https://gitee.com/jibutech/tech-docs/raw/master/images/backup-button-2.6.png" style="zoom:50%;" />”列，在操作中选择“备份”，即可触发备份作业。
 
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/start-backup-beta.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-start-2.6.png)
 
 点击“确定”按钮，备份作业即开始运行。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-confirm-beta.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-confirm-2.6.png)
 
 
 ### 5.4 查看备份作业
 
 在备份页面中，点击“备份任务”栏的链接，即可查看备份作业的执行情况。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-started-2.4.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-started-2.6.png)
 
 备份任务成功后，可点击右侧“恢复”按钮进行恢复。
 

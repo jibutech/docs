@@ -579,7 +579,7 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 在银数多云数据管家左侧菜单栏中选择“配置”进入配置页面。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/config-2.5.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/config-2.6.png)
 
 目前支持配置邮件和微信报告。
 

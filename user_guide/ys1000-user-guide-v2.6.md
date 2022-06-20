@@ -376,7 +376,6 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/jobmonitor-page-2.6.png)
 
-
 ## 6. 恢复至本集群
 
 从备份恢复应用至本集群一般在本地应用出现故障时使用（如命名空间被意外删除等），恢复往往无需进行应用资源本身相关的修改（如对外服务的域名和端口等）。
@@ -385,6 +384,7 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 在成功的备份任务右侧点击“恢复”按钮进入恢复创建页面。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore-button-2.4.png)
+
 
 ### 6.1 创建应用恢复任务
 

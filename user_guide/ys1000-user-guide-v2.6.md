@@ -355,7 +355,7 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 对于定时备份策略，系统会自动按照定时设定进行备份。同时，用户可以选择备份任务手动触发备份作业。
 
-在备份页面中，选择对应备份任务的“<img src="https://gitee.com/jibutech/tech-docs/raw/master/images/backup-button-2.6.png" style="zoom:20%;" />”列，在操作中选择“备份”，即可触发备份作业。
+在备份页面中，选择对应备份任务的“<img src="https://gitee.com/jibutech/tech-docs/raw/master/images/backup-button-2.6.png" style="zoom:5%;" />”列，在操作中选择“备份”，即可触发备份作业。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/backup-start-2.6.png)
 

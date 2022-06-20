@@ -1,4 +1,4 @@
-# 银数多云数据管家2.5版使用说明书
+# 银数多云数据管家2.6版使用说明书
 
 ## 目录结构
 
@@ -78,9 +78,9 @@
 
 ## 2. 运行环境与兼容性
 
-推荐使用Firefox访问银数多云数据管家2.2版控制台。
+推荐使用Firefox访问银数多云数据管家2.6版控制台。
 
-目前YS1000 2.2版支持管理的Kubernetes版本、对象存储以及主存储如下表所示：
+目前YS1000 2.6版支持管理的Kubernetes版本、对象存储以及主存储如下表所示：
 
 | Kubernetes发行版   | S3对象存储                          | 云原生存储    | Snapshot CRD |
 | ------------------ | ----------------------------------- | ------------- | ------------ |
@@ -178,7 +178,7 @@ parameters:
 deletionPolicy: Retain 
 ```
 
-**其中，SnapshotClass的`deletionPolicy`必须是`Retain`，并且加上velero需要的label (`velero.io/csi-volumesnapshot-class: "true"`)，这样后面在配置备份时候，会协调velero来产生并备份PV的快照。在YS1000 v2.5.0版本中，会自动检测snapshotclass中这两个参数的是否存在和赋值，如果不一致则自动生成符合条件的新的snapshotclass。**
+**其中，SnapshotClass的`deletionPolicy`必须是`Retain`，并且加上velero需要的label (`velero.io/csi-volumesnapshot-class: "true"`)，这样后面在配置备份时候，会协调velero来产生并备份PV的快照。在YS1000 v2.5.0版本中，会自动检测snapshotclass中这两个参数是否存在和赋值，如果不一致则自动生成符合条件的新的snapshotclass。**
 
 第二步，检查Storageclass和Volumesnapshotclass对应关系。
 

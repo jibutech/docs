@@ -17,19 +17,23 @@
     - [5.2 创建备份任务](#52-创建备份任务)
     - [5.3 执行备份任务](#53-执行备份任务)
     - [5.4 查看备份作业](#54-查看备份作业)
+    - [5.5 取消备份作业](#55-取消备份作业)
 - [6. 恢复至本集群](#6-恢复至本集群)
     - [6.1 创建应用恢复任务](#61-创建应用恢复任务)
     - [6.2 执行应用恢复任务](#62-执行应用恢复任务)
     - [6.3 查看应用恢复作业](#63-查看应用恢复作业)
+    - [6.4 取消应用恢复作业](#64-取消应用恢复作业)
 - [7. 恢复至其它集群](#7-恢复至其它集群)
     - [7.1 创建、执行、查看应用恢复任务](#71-创建、执行、查看应用恢复任务)
     - [7.2 修改相应应用信息](#72-修改相应应用信息)
 - [8. 跨集群迁移](#8-跨集群迁移)
     - [8.1 创建迁移任务](#81-创建迁移任务)
-    - [8.2 执行迁移任务](#82-执行迁移任务)
-    - [8.3 查看迁移作业](#83-查看迁移作业)
-    - [8.4 修改相应应用信息](#84-修改相应应用信息)
-    - [8.5 钩子程序](#85-钩子程序)
+    - [8.2 执行增量迁移任务](#82-执行增量迁移任务)
+    - [8.3 执行一键迁移任务](#83-执行一键迁移任务)
+    - [8.4 查看迁移作业](#84-查看迁移作业)
+    - [8.5 取消迁移作业](#85-取消迁移作业)
+    - [8.6 修改相应应用信息](#86-修改相应应用信息)
+    - [8.7 钩子程序](#87-钩子程序)
 - [9. 配置作业报告](#9-配置作业报告)
 - [10. YS1000的自备份与恢复](#10-YS1000的自备份与恢复)
 - [11. 产品限制](#11-产品限制)
@@ -392,6 +396,16 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-detail-3-2.7.png)
 
+### 5.5 取消备份作业
+
+备份任务进行时，可点击右侧“取消”按钮进行取消
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-cancel-1-2.7.png)
+
+取消成功后，状态更新
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-cancel-2-2.7.png)
+
 ## 6. 恢复至本集群
 
 从备份恢复应用至本集群一般在本地应用出现故障时使用（如命名空间被意外删除等），恢复往往无需进行应用资源本身相关的修改（如对外服务的域名和端口等）。
@@ -451,6 +465,15 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/restorejob-detail-1-2.7.png)
 
+### 6.4 取消应用恢复作业
+
+恢复任务进行时，可点击右侧“取消”按钮进行取消
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restorejob-cancel-1-2.7.png)
+
+取消成功后，状态更新
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restorejob-cancel-2-2.7.png)
 
 ## 7. 恢复至其它集群
 
@@ -506,11 +529,18 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/migration4-2.5.png)
 
-### 8.2 执行迁移任务
+### 8.2 执行增量迁移任务
+
+在应用迁移页面中，选择对应迁移任务的""列，在操作中选择“增量迁移”，即可触发增量迁移作业。
+
++pic
+
+
+### 8.3 执行一键迁移任务
 
 在应用迁移页面中，选择对应迁移任务的""列，在操作中选择“一键迁移”，即可触发迁移作业。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/start-mig-beta.png)
++pic
 
 迁移过程默认会停掉源集群中选定命名空间内的应用，以保证数据一致性。
 
@@ -520,17 +550,23 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 点击“迁移”按钮，迁移作业即开始运行。
 
-### 8.3 查看迁移作业
+### 8.4 查看迁移作业
 
 在迁移页面中，点击迁移任务栏的链接，即可查看迁移作业的执行情况，也可以通过任务监控页面浏览概况。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/mig-started-beta.png)
 
-### 8.4 修改相应应用信息
+### 8.5 取消迁移作业
+
+迁移任务进行时，可点击右侧“取消”按钮进行取消
+
++pic
+
+### 8.6 修改相应应用信息
 
 在目标端集群重新启动应用后，对于和源集群有冲突的资源需要进行相应的更改，然后才能在目标端完全恢复应用。如wordpress在目标端重启启动后，仍旧会绑定源端使用的域名，这时需要管理员将域名指向目标端集群IP，或者执行特定脚本来更改新域名。
 
-### 8.5 钩子程序
+### 8.7 钩子程序
 
 钩子程序（Hook) 提供在备份，恢复以及迁移应用执行前后添加应用自定义逻辑的功能，满足不同应用的需求。
 简单的自定义逻辑支持通过ansible playbook 脚本来实现，或者用户也可以根据应用需要开发自定义的钩子程序（容器镜像）。

@@ -643,7 +643,7 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
 
 -   第三步，在需要做恢复的集群上下载 
 
-    https://github.com/jibutech/docs/blob/main/self-restore/self-restore-2.6.0.sh
+    https://github.com/jibutech/docs/blob/main/self-restore/self-restore-2.7.0.sh
     
     并按照脚本提示创建config文件，并填入自备份使用的s3信息
     

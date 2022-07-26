@@ -57,9 +57,9 @@ CHART=/tmp/"${RANDOM_SUFFIX}"/qiming-operator
 
 echo "Start restoring"
 set -x
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update bitnami
-helm dependency build "${CHART}"
+# helm repo add bitnami https://charts.bitnami.com/bitnami
+# helm repo update bitnami
+# helm dependency build "${CHART}"
 helm install "restore-$RANDOM_SUFFIX" "${CHART}" \
     --namespace "restore-$RANDOM_SUFFIX" --create-namespace --timeout 20m \
     --set restore=true,velero.namespace="restore-agent-$RANDOM_SUFFIX" \

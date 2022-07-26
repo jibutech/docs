@@ -384,7 +384,7 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-detail-1-2.7.png)
 
-切换到备份资料列表
+切换到资源列表
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/backupjob-detail-2-2.7.png)
 

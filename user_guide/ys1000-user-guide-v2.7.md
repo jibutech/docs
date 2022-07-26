@@ -637,7 +637,7 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
 -   第二步，下载安装helmtool，并拷贝到可执行目录：
 
     ```
-    docker cp $(docker create --rm registry.cn-shanghai.aliyuncs.com/jibudata/restore-job:release-2.5.0-latest):/usr/bin/helmtool /tmp/helmtool
+    docker cp $(docker create --rm registry.cn-shanghai.aliyuncs.com/jibudata/restore-job:release-2.7.0-latest):/usr/bin/helmtool /tmp/helmtool
     mv /tmp/helmtool /usr/local/bin/helmtool
     ```
 

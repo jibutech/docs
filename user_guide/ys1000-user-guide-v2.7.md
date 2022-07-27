@@ -671,6 +671,7 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
     ```
     helm upgrade qiming-operator qiming/qiming-operator --namespace qiming-migration --set selfBackup.enabled=true
     ```
+    **注意：**从YS1000 2.7.0版本开始，打开自备份的前提是mysql数据持久化到pv，即必须在部署时指定mysql的persistence.enabled=true
     
     其他升级参数设置参考：
     
@@ -705,8 +706,6 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
     解决方法：对要备份的Pod加一个annotation：
 
     `kubectl -n <namespace> annotate pod/<podname> backup.velero.io/backup-volumes-excludes=<volumename>`
-
--   如果需要启动自备份，必须在部署时指定mysql的persistence.enabled=true
 
 -   取消备份、恢复、迁移任务后，不会对已经生成的资源进行回退，需要手动检查环境并删除
 

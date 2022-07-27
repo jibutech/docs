@@ -666,12 +666,14 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
 ## 10. YS1000的自备份与恢复
 
 
--   第一步，使用 helm upgrade 打开自备份功能，例如
+-   第一步，使用 helm upgrade 打开自备份功能
+    **注意：从YS1000 2.7.0版本开始，打开自备份的前提是mysql数据持久化到pv，即必须在部署时指定mysql的persistence.enabled=true**
+
+    例如
 
     ```
-    helm upgrade qiming-operator qiming/qiming-operator --namespace qiming-migration --set selfBackup.enabled=true
+    helm upgrade qiming-operator qiming/qiming-operator --namespace qiming-migration --set selfBackup.enabled=true --set mysql.primary.persistence.enabled=true
     ```
-    **注意：**从YS1000 2.7.0版本开始，打开自备份的前提是mysql数据持久化到pv，即必须在部署时指定mysql的persistence.enabled=true
     
     其他升级参数设置参考：
     

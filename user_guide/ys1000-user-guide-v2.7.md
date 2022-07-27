@@ -531,16 +531,17 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ### 8.2 执行增量迁移任务
 
-在应用迁移页面中，选择对应迁移任务的""列，在操作中选择“增量迁移”，即可触发增量迁移作业。
+从YS1000 2.7.0版本开始，支持增量迁移，即一个迁移计划创建后，可进行多次增量迁移，最后再进行一次一键迁移完成应用异地拉起
+在应用迁移页面中，选择对应迁移计划的操作列，在操作中选择“增量迁移”，即可触发增量迁移作业。
 
-+pic
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/migrationjob-increment-2.7.png)
 
 
 ### 8.3 执行一键迁移任务
 
-在应用迁移页面中，选择对应迁移任务的""列，在操作中选择“一键迁移”，即可触发迁移作业。
+在应用迁移页面中，选择对应迁移计划的操作列，在操作中选择“一键迁移”，即可触发迁移作业。
 
-+pic
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/migrationjob-entire-2.7.png)
 
 迁移过程默认会停掉源集群中选定命名空间内的应用，以保证数据一致性。
 
@@ -560,7 +561,12 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 迁移任务进行时，可点击右侧“取消”按钮进行取消
 
-+pic
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/migrationjob-cancel-1-2.7.png)
+
+取消成功后，状态更新
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/migrationjob-cancel-2-2.7.png)
+
 
 ### 8.6 修改相应应用信息
 
@@ -699,6 +705,10 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
     解决方法：对要备份的Pod加一个annotation：
 
     `kubectl -n <namespace> annotate pod/<podname> backup.velero.io/backup-volumes-excludes=<volumename>`
+
+-   如果需要启动自备份，必须在部署时指定mysql的persistence.enabled=true
+
+-   取消备份、恢复、迁移任务后，不会对已经生成的资源进行回退，需要手动检查环境并删除
 
 
 ## 12. 故障与诊断

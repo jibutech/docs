@@ -809,7 +809,28 @@ Compress logs to /tmp/qiming-migration-logs-1634224404.41.tar
 1. 下载文件client-log-collector.yaml
 
 ```
-[root@gyj-dev ~]# wget https://raw.githubusercontent.com/jibutech/docs/main/log_collection/client-log-collector.yaml
+# client-log-collector.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-collector
+  namespace: qiming-backend
+  labels:
+    app: log-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-collector
+  template:
+    metadata:
+      labels:
+        app: log-collector
+    spec:
+      serviceAccountName: velero
+      containers:
+      - name: log-collector
+        image: registry.cn-shanghai.aliyuncs.com/jibudata/log-collector:v2.7.0
 ```
 
 2. 部署日志收集工具并收集日志

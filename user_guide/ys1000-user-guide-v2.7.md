@@ -713,7 +713,129 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
 
 ### 12.1 日志收集
 
-请参考 https://github.com/jibutech/docs/tree/main/log_collection#readme 部署日志收集容器镜像，执行日志收集命令后发送给技术支持人员。
+使用Helm安装YS1000的时可以指定YS1000的控制组件所使用的命名空间名字， 默认命令空间名为ys1000， YS1000的备份引擎安装在用户集群名为qiming-backend的命名空间内， 因此需要分别对控制组件和备份引擎进行日志收集。
+
+## 
+
+#### YS1000控制组件日志收集
+
+1. 查询ys1000的serviceaccount， 下载文件server-log-collector.yaml 并替换文件中的serviceAccountName。
+
+```
+[root@gyj-dev ~]# wget https://raw.githubusercontent.com/jibutech/docs/main/log_collection/server-log-collector.yaml
+
+[root@gyj-dev ~]# kubectl -n ys1000 get sa
+NAME                         SECRETS   AGE
+default                      1         23d
+qiming-operator-1634274895   1         10s
+
+#  在server-log-collector.yaml搜索serviceAccountName并对应的"qiming-operator"替换为"qiming-operator-1634274895"
+
+[root@gyj-dev ~]# grep serviceAccountName server-log-collector.yaml
+      serviceAccountName: qiming-operator-1634274895
+```
+
+2. 部署 日志收集工具收集日志.
+
+```
+# 在ys1000命名空间内安装日志收集工具
+[root@gyj-dev ~]# kubectl apply -f ./server-log-collector.yaml
+
+# check log collector pod status
+[root@gyj-dev ~]# kubectl -n ys1000 get pods
+NAME                                                READY   STATUS    RESTARTS   AGE
+log-collector-74c865f9-bb8xg                        1/1     Running   0          36m
+cron-85b8fd5767-m2pfd                               1/1     Running   0          7d17h
+mig-controller-default-784f64d4dc-fqrvz             1/1     Running   0          112m
+mysql-0                                             1/1     Running   0          7d17h
+ui-discovery-default-9d4ff6769-xwmjd                2/2     Running   0          5d21h
+webserver-8d9b58776-4ck5b                           1/1     Running   0          5d21h
+
+# 进入collector pod 
+[root@gyj-dev ~]# k -n ys1000 exec -it log-collector-74c865f9-bb8xg -- sh
+
+# 执行日志收集命令
+(app-root) sh-4.4$ python /qiming/log-collector.py
+(app-root) sh-4.4$ python /qiming/log-collector.py
+Create logpath /tmp/qiming-migration-logs-1634224404.41/ys1000
+Create logpath /tmp/qiming-migration-logs-1634224404.41/qiming-backend
+Create log file for pod log-collector-74c865f9-bb8xg
+Create log file for pod mig-controller-default-58ff75688c-g8rlj
+Create log file for pod qiming-operator-94fcbbd57-6wg6c
+Create log file for pod qiming-operator-velero-installer-78ddb79499-d8rbw
+Create log file for pod ui-discovery-default-cdc8774bf-2rvpb
+...
+Collect configmap migration-cluster-config.yaml from namespace qiming-backend
+Compress logs to /tmp/qiming-migration-logs-1634224404.41.tar
+
+(app-root) sh-4.4$ ls -rlt /tmp/qiming-migration-logs-1634223960.63.tar
+-rw-r--r-- 1 default root 15595520 Oct 14 15:06 /tmp/qiming-migration-logs-1634223960.63.tar
+
+# 将打包后的日志拷贝到指定目录
+[root@gyj-dev ~]# k -n ys1000 exec -it log-collector-74c865f9-bb8xg -- sh ^C
+[root@gyj-dev ~]# kubectl cp ys1000/log-collector-74c865f9-bb8xg:/tmp/qiming-migration-logs-1634224404.41.tar /tmp/qiming-migration-logs-1634224404.41.tar
+...
+[root@gyj-dev ~]# ls -rlt /tmp/qiming-migration-logs-1634224404.41.tar
+-rw-r--r-- 1 root root 15626240 10月 14 23:14 /tmp/qiming-migration-logs-1634224404.41.tar
+```
+
+## 
+
+#### YS1000备份引擎日志收集
+
+1. 下载文件client-log-collector.yaml
+
+```
+[root@gyj-dev ~]# wget https://raw.githubusercontent.com/jibutech/docs/main/log_collection/client-log-collector.yaml
+```
+
+2. 部署日志收集工具并收集日志
+
+```
+# 安装日志收集工具
+[root@gyj-dev ~]# kubectl apply -f ./client-log-collector.yaml
+
+# 查看对应pod状态
+[root@gyj-dev ~]#  kubectl -n qiming-backend get pods
+NAME                                             READY   STATUS    RESTARTS   AGE
+log-collector-76766456cc-hxnw5                   1/1     Running   0          35m
+minio-7496b65c8-zxmqr                            1/1     Running   0          11h
+amberapp-controller-manager-76d8fb4998-d8ndx     1/1     Running   0          12m
+data-mover-controller-manager-5f6765fc9d-qmxwq   1/1     Running   0          12m
+restic-hn5nw                                     1/1     Running   0          12m
+velero-5586df6449-2w2nw                          1/1     Running   0          12m
+velero-installer-76f989f69b-xzfm8                1/1     Running   0          13m
+
+# 进入collector pod 
+[root@gyj-dev ~]# k -n qiming-backend exec -it log-collector-76766456cc-hxnw5 -- sh
+
+# 执行日志收集命令
+(app-root) sh-4.4$ python /qiming/log-collector.py
+Create logpath /tmp/qiming-migration-logs-1634223920.81/ys1000
+Create logpath /tmp/qiming-migration-logs-1634223920.81/qiming-backend
+Create log file for pod log-collector-74c865f9-bb8xg
+Create log file for pod mig-controller-default-58ff75688c-g8rlj
+Create log file for pod qiming-operator-94fcbbd57-6wg6c
+Create log file for pod qiming-operator-velero-installer-78ddb79499-d8rbw
+Create log file for pod ui-discovery-default-cdc8774bf-2rvpb
+Create log file for pod log-collector-76766456cc-hxnw5
+Create log file for pod minio-7496b65c8-zxmqr
+...
+Collect configmap migration-cluster-config.yaml from namespace ys1000
+Collect configmap ui-configmap.yaml from namespace ys1000
+Create logpath /tmp/qiming-migration-logs-1634223960.63/qiming-backend/configmap
+Collect configmap migration-cluster-config.yaml from namespace qiming-backend
+Compress logs to /tmp/qiming-migration-logs-1634223960.63.tar
+
+(app-root) sh-4.4$ ls -rlt /tmp/qiming-migration-logs-1634223960.63.tar
+-rw-r--r-- 1 default root 15595520 Oct 14 15:06 /tmp/qiming-migration-logs-1634223960.63.tar
+
+# 将打包后的日志拷贝到指定目录
+[root@gyj-dev ~]# kubectl cp qiming-backend/log-collector-76766456cc-hxnw5:/tmp/qiming-migration-logs-1634223960.63.tar /tmp/qiming-migration-logs-1634223960.63.tar
+...
+[root@gyj-dev ~]# ls -rlth /tmp/qiming-migration-logs-1634223960.63.tar
+-rw-r--r-- 1 root root 15M 10月 14 23:11 /tmp/qiming-migration-logs-1634223960.63.tar
+```
 
 ### 12.2 常见问题
 

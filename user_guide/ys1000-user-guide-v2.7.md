@@ -796,7 +796,7 @@ Compress logs to /tmp/qiming-migration-logs-1634224404.41.tar
 
 # 将打包后的日志拷贝到指定目录
 [root@gyj-dev ~]# k -n ys1000 exec -it log-collector-74c865f9-bb8xg -- sh ^C
-[root@gyj-dev ~]# kubectl cp ys1000/log-collector-74c865f9-bb8xg:/tmp/qiming-migration-logs-1634224404.41.tar /tmp/qiming-migration-logs-1634224404.41.tar
+[root@gyj-dev ~]# kubectl cp ys1000/log-collector-74c865f9-bb8xg:tmp/qiming-migration-logs-1634224404.41.tar /tmp/qiming-migration-logs-1634224404.41.tar
 ...
 [root@gyj-dev ~]# ls -rlt /tmp/qiming-migration-logs-1634224404.41.tar
 -rw-r--r-- 1 root root 15626240 10月 14 23:14 /tmp/qiming-migration-logs-1634224404.41.tar
@@ -875,7 +875,7 @@ Compress logs to /tmp/qiming-migration-logs-1634223960.63.tar
 -rw-r--r-- 1 default root 15595520 Oct 14 15:06 /tmp/qiming-migration-logs-1634223960.63.tar
 
 # 将打包后的日志拷贝到指定目录
-[root@gyj-dev ~]# kubectl cp qiming-backend/log-collector-76766456cc-hxnw5:/tmp/qiming-migration-logs-1634223960.63.tar /tmp/qiming-migration-logs-1634223960.63.tar
+[root@gyj-dev ~]# kubectl cp qiming-backend/log-collector-76766456cc-hxnw5:tmp/qiming-migration-logs-1634223960.63.tar /tmp/qiming-migration-logs-1634223960.63.tar
 ...
 [root@gyj-dev ~]# ls -rlth /tmp/qiming-migration-logs-1634223960.63.tar
 -rw-r--r-- 1 root root 15M 10月 14 23:11 /tmp/qiming-migration-logs-1634223960.63.tar

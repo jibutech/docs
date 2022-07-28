@@ -719,11 +719,34 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
 
 #### YS1000控制组件日志收集
 
-1. 查询ys1000的serviceaccount， 下载文件server-log-collector.yaml 并替换文件中的serviceAccountName。
+1. 查询ys1000的serviceaccount， 更新server-log-collector.yaml文件中的serviceAccountName。
 
 ```
-[root@gyj-dev ~]# wget https://raw.githubusercontent.com/jibutech/docs/main/log_collection/server-log-collector.yaml
+# server-log-collector.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-collector
+  namespace: qiming-migration
+  labels:
+    app: log-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-collector
+  template:
+    metadata:
+      labels:
+        app: log-collector
+    spec:
+      serviceAccountName: qiming-operator
+      containers:
+      - name: log-collector
+        image: registry.cn-shanghai.aliyuncs.com/jibudata/log-collector:v2.7.0
+```
 
+```
 [root@gyj-dev ~]# kubectl -n ys1000 get sa
 NAME                         SECRETS   AGE
 default                      1         23d

@@ -2,31 +2,33 @@
 
 ## 目录结构
 
-- [1. 银数多云数据管家典型用户场景介绍](#1-银数多云数据管家典型用户场景介绍)
-    - [1.1 本地Kubernetes集群应用和数据的日常备份与恢复](#11-本地Kubernetes集群应用和数据的日常备份与恢复)
-    - [1.2 在其它Kubernetes集群中恢复应用和数据](#12-在其它Kubernetes集群中恢复应用和数据)
+- [银数多云数据管家2.7版使用说明书](#银数多云数据管家27版使用说明书)
+  - [目录结构](#目录结构)
+  - [1. 银数多云数据管家典型用户场景介绍](#1-银数多云数据管家典型用户场景介绍)
+    - [1.1 本地Kubernetes集群应用和数据的日常备份与恢复](#11-本地kubernetes集群应用和数据的日常备份与恢复)
+    - [1.2 在其它Kubernetes集群中恢复应用和数据](#12-在其它kubernetes集群中恢复应用和数据)
     - [1.3 应用的跨云迁移](#13-应用的跨云迁移)
-- [2. 运行环境与兼容性](#2-运行环境与兼容性)
-- [3. 软件配置与授权](#3-软件配置与授权)
-- [4. 配置集群与备份仓库](#4-配置集群与备份仓库)
-    - [4.1 配置待保护Kubernetes集群](#41-配置待保护Kubernetes集群)
+  - [2. 运行环境与兼容性](#2-运行环境与兼容性)
+  - [3. 软件配置与授权](#3-软件配置与授权)
+  - [4. 配置集群与备份仓库](#4-配置集群与备份仓库)
+    - [4.1 配置待保护Kubernetes集群](#41-配置待保护kubernetes集群)
     - [4.2 配置备份仓库](#42-配置备份仓库)
     - [4.3 配置快照](#43-配置快照)
-- [5. 备份设置](#5-备份设置)
+  - [5. 备份设置](#5-备份设置)
     - [5.1 创建备份策略](#51-创建备份策略)
     - [5.2 创建备份任务](#52-创建备份任务)
     - [5.3 执行备份任务](#53-执行备份任务)
     - [5.4 查看备份作业](#54-查看备份作业)
     - [5.5 取消备份作业](#55-取消备份作业)
-- [6. 恢复至本集群](#6-恢复至本集群)
+  - [6. 恢复至本集群](#6-恢复至本集群)
     - [6.1 创建应用恢复任务](#61-创建应用恢复任务)
     - [6.2 执行应用恢复任务](#62-执行应用恢复任务)
     - [6.3 查看应用恢复作业](#63-查看应用恢复作业)
     - [6.4 取消应用恢复作业](#64-取消应用恢复作业)
-- [7. 恢复至其它集群](#7-恢复至其它集群)
-    - [7.1 创建、执行、查看应用恢复任务](#71-创建、执行、查看应用恢复任务)
+  - [7. 恢复至其它集群](#7-恢复至其它集群)
+    - [7.1 创建、执行、查看应用恢复任务](#71-创建执行查看应用恢复任务)
     - [7.2 修改相应应用信息](#72-修改相应应用信息)
-- [8. 跨集群迁移](#8-跨集群迁移)
+  - [8. 跨集群迁移](#8-跨集群迁移)
     - [8.1 创建迁移任务](#81-创建迁移任务)
     - [8.2 执行增量迁移任务](#82-执行增量迁移任务)
     - [8.3 执行一键迁移任务](#83-执行一键迁移任务)
@@ -34,12 +36,16 @@
     - [8.5 取消迁移作业](#85-取消迁移作业)
     - [8.6 修改相应应用信息](#86-修改相应应用信息)
     - [8.7 钩子程序](#87-钩子程序)
-- [9. 配置作业报告](#9-配置作业报告)
-- [10. YS1000的自备份与恢复](#10-YS1000的自备份与恢复)
-- [11. 产品限制](#11-产品限制)
-- [12. 故障与诊断](#12-故障与诊断)
+  - [9. 配置作业报告](#9-配置作业报告)
+  - [10. YS1000的自备份与恢复](#10-ys1000的自备份与恢复)
+  - [11. 产品限制](#11-产品限制)
+  - [12. 故障与诊断](#12-故障与诊断)
     - [12.1 日志收集](#121-日志收集)
+      - [YS1000控制组件日志收集](#ys1000控制组件日志收集)
+      - [YS1000备份引擎日志收集](#ys1000备份引擎日志收集)
     - [12.2 常见问题](#122-常见问题)
+  - [资源与规划](#资源与规划)
+  - [安全与隐私](#安全与隐私)
 
 
 ## 1. 银数多云数据管家典型用户场景介绍
@@ -715,7 +721,7 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
 
 使用Helm安装YS1000的时可以指定YS1000的控制组件所使用的命名空间名字， 默认命令空间名为ys1000， YS1000的备份引擎安装在用户集群名为qiming-backend的命名空间内， 因此需要分别对控制组件和备份引擎进行日志收集。
 
-## 
+
 
 #### YS1000控制组件日志收集
 
@@ -801,8 +807,6 @@ Compress logs to /tmp/qiming-migration-logs-1634224404.41.tar
 [root@gyj-dev ~]# ls -rlt /tmp/qiming-migration-logs-1634224404.41.tar
 -rw-r--r-- 1 root root 15626240 10月 14 23:14 /tmp/qiming-migration-logs-1634224404.41.tar
 ```
-
-## 
 
 #### YS1000备份引擎日志收集
 
@@ -904,3 +908,51 @@ Compress logs to /tmp/qiming-migration-logs-1634223960.63.tar
 - 备份一个k8s版本 >= 1.21 集群上的应用，再恢复到一个 k8s版本 <= 1.20 的集群上后，应用中pod无法正常running的问题，参考：
 
   https://velero.cn/d/37-k8s-121-beta-feature-boundserviceaccounttokenvelerorestic
+
+## 资源与规划
+
+| 集群 | 容器镜像 | 描述 | 数量 | 配置 | 健康检查 |
+|------|--------|------|------|-------|--------|
+|管理集群|qiming-operator| 安装并维护YS1000相关资源 | 1 |   limits: cpu: 1 memory: 1Gi requests:cpu: 100m memory: 128Mi | /healthz, /readyz |
+||mig-ui| web UI| 1 | limits: cpu: 1 memory: 1Gi requests:cpu: 100m memory: 128Mi | N/A|
+||mig-discovery| web后端服务 | 1 | limits: cpu: 1 memory: 2Gi requests:cpu: 100m memory: 128Mi | N/A |
+||mig-controller| 备份恢复控制器 | 1 | limits: cpu: 1 memory: 2Gi requests:cpu: 100m memory: 128Mi | N/A |
+||webserver| web后端服务 | 1 | limits: cpu: 1 memory: 2Gi requests:cpu: 100m memory: 128Mi | N/A |
+||mysql | 存储元数据（可选） | 1 | N/A | Readiness, Liveness |
+||cron| 执行定时备份 | 1 | limits: cpu: 1 memory: 1Gi requests:cpu: 100m memory: 128Mi | /healthz, /readyz |
+||helm-tool| helm工具 | 1 | - | - |
+||self-restore| 自恢复 | 1 | - | - |
+|受管集群|velero-installer| 安装和维护备份引擎资源 | 1 | - | - |
+||velero-restic-restore-helper | 数据恢复引导 | 1 | - | - |
+||velero | 备份恢复工具 | 1 | limits: cpu: 1 memory: 1Gi requests:cpu: 500m memory: 256Mi | - |
+||velero-plugin-for-aws| aws插件 | 1 | - | - |
+||velero-plugin-for-csi | csi插件 | 1 | - | - |
+||velero-plugin-ys1000 | ys1000插件 | 1 | - | - |
+||restic-dm| 数据同步工具 | x | limits: cpu: 1 memory: 8Gi requests:cpu: 500m memory: 1Gi | - |
+||amberapp | 数据库一致性备份插件 | 1 | limits: cpu: 100m memory: 300Mi requests:cpu: 100m memory: 50Mi | - |
+||data-mover| 基于快照数据复制工具 | 1| limits: cpu: 100m memory: 300Mi requests:cpu: 100m memory: 100Mi |- |
+||hook-runner | 钩子执行工具 | 1 | -|  -|
+
+## 安全与隐私
+
+| 集群 | 容器镜像 |  | Cluster Role | Port | User |
+|------|---------|------|--------------|-------|-----|
+|管理集群|qiming-operator| | cluster-admin | 8081 | 普通用户|
+||mig-ui| | cluster-admin | 9000 | 普通用户|
+||mig-discovery| | cluster-admin | 9200 | 普通用户 |
+||mig-controller| | cluster-admin | 9443 | 普通用户 |
+||webserver| | cluster-admin | 8000, 9000 | 普通用户 |
+||mysql | | - | 3306 | 1001 |
+||cron| | cluster-admin | 8001, 8443 | 普通用户 |
+||helm-tool| | cluster-admin | -| 普通用户|
+||self-restore| | cluster-admin | - | 普通用户|
+|受管集群|velero-installer| | cluster-admin | -| root |
+||velero-restic-restore-helper | | - | - | nonroot |
+||velero | | cluster-admin | 8085 | nonroot |
+||velero-plugin-for-aws| | cluster-admin| -| nobody:nogroup |
+||velero-plugin-for-csi | | cluster-admin | -| nobody:nogroup |
+||velero-plugin-ys1000 | | cluster-admin| -| nobody:nogroup |
+||restic-dm| | cluster-admin | - | root |
+||amberapp | | cluster-admin | - | 65532|
+||data-mover| | - | - | 65532 |
+||hook-runner ||  -|  -| 普通用户 |

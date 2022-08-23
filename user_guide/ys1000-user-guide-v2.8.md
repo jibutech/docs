@@ -117,7 +117,7 @@
 
 “集群名称”请输入待保护Kubernetes集群名称。
 
-从YS1000 v2.8.0版本开始，添加集群不再使用url+token的方式，改为使用kubeconfig连接。
+从YS1000 v2.8.0版本开始，添加“发行版支持”选项，默认选择社区版k8s；并且添加集群不再使用url+token的方式，改为使用kubeconfig连接。
 
 可以在在“集群导入”中上传集群的kubeconfig文件，或直接粘贴kubeconfig内容（注意server地址替换成可访问的外网ip），例如：
 

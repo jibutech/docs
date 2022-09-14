@@ -69,13 +69,9 @@ set +x
 
 echo "Restore completed, removing temp resources"
 set -x
-kubectl -n "restore-$RANDOM_SUFFIX" delete migstorage.migration.yinhestor.com default --ignore-not-found=true --wait=false
-kubectl patch migstorage.migration.yinhestor.com/default -p '{"metadata":{"finalizers": []}}' --type=merge -n "restore-$RANDOM_SUFFIX" > /dev/null 2&>1 || true
-kubectl -n "restore-$RANDOM_SUFFIX" delete migclusters.migration.yinhestor.com host-cluster --ignore-not-found=true --wait=false
-kubectl patch migclusters.migration.yinhestor.com/host-cluster -p '{"metadata":{"finalizers": []}}' --type=merge -n "restore-$RANDOM_SUFFIX" > /dev/null 2&>2 || true
+kubectl -n "restore-$RANDOM_SUFFIX" delete migclusters.migration.yinhestor.com host-cluster --ignore-not-found=true
+kubectl -n "restore-$RANDOM_SUFFIX" delete migstorages.migration.yinhestor.com default --ignore-not-found=true
 helm delete "restore-$RANDOM_SUFFIX" --namespace "restore-$RANDOM_SUFFIX"
-kubectl -n "restore-agent-$RANDOM_SUFFIX" delete secret agent-config --ignore-not-found=true --wait=false
-kubectl patch secret/agent-config -p '{"metadata":{"finalizers": []}}' --type=merge -n "restore-agent-$RANDOM_SUFFIX" > /dev/null 2&>3 || true
 kubectl delete ns "restore-$RANDOM_SUFFIX" "restore-agent-$RANDOM_SUFFIX"
 set +x
 

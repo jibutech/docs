@@ -6,6 +6,9 @@ metadata:
   labels:
     {{- include "cce-demo.labels" . | nindent 4 }}
 spec:
+  {{- with .Values.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
   accessModes:
     - ReadWriteOnce
   resources:

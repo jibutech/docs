@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "cce-demo.fullname" . }}-frontend
+  name: cce-demo-frontend
   labels:
     {{- include "cce-demo.labels" . | nindent 4 }}
 spec:
@@ -18,11 +18,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "cce-demo.fullname" . }}-backend
+  name: cce-demo-backend
   labels:
     {{- include "cce-demo.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   ports:
     - port: {{ .Values.service.port }}
       targetPort: http

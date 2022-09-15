@@ -233,6 +233,15 @@ spec:
         matchers:
         - name: alertname
           matchType: =
+          value: SelfBackupPlanNotReady
+      - receiver: 'webhook-and-wechat'
+        groupBy: ['backupplan']
+        groupWait: 30s
+        groupInterval: 5m
+        repeatInterval: 30m
+        matchers:
+        - name: alertname
+          matchType: =
           value: BackupPlanNotReady
       - receiver: 'webhook-and-wechat'
         groupBy: ['backupjob']
@@ -314,6 +323,95 @@ data:
 ```
 
 示例中各个告警的 repeatInterval 可以按需求调整，
+
+## 告警消息的定制
+
+Alertmanager 支持对告警消息进行定制，这里我们以微信告警消息为例。
+
+### 定义模板
+
+将下面的模板代码保存为文件 ys1000_wechat.tmpl
+```
+{{ define "wechat.ys1000.message" }}
+{{- if gt (len .Alerts.Firing) 0 -}}
+{{- range $index, $alert := .Alerts -}}
+==========异常告警==========
+告警类型: {{ $alert.Labels.alertname }}
+告警级别: {{ $alert.Labels.severity }}
+告警摘要: {{$alert.Annotations.summary}}
+告警描述: {{ $alert.Annotations.description}}
+告警详情: {{ $alert.Annotations.content }}
+故障时间: {{ ($alert.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}
+Source: {{ $alert.GeneratorURL }}
+============END============
+{{- end }}
+{{- end }}
+Alertmanager URL: {{ template "__alertmanagerURL" . }}
+{{- end }}
+```
+
+如果您没有使用 Prometheus Operator，请直接把 ys1000_wechat.tmpl 文件放入 /etc/alertmanager/config/ 目录。
+
+如果您使用了 Prometheus Operator，请修改 Prometheus 实例所对应的配置 secret，在data中增加一项，key为ys1000_wechat.tmpl，值为模板内容。例如：(请根据实际环境修改命令中的命名空间参数和secret名，secret 名为'alertmanager-<alertmanager-name>')
+
+```
+kubectl -n prometheus patch secrets alertmanager-prometheus-kube-prometheus-alertmanager -p="{\"data\":{\"ys1000_wechat.tmpl\":\"$(base64 ys1000_wechat.tmpl)\"}}"
+```
+
+### 使用模板
+
+修改 Alertmanager 的配置，使用这个模板
+
+如果您没有使用 Prometheus Operator，请修改 Alertmanager 的配置文件 在 receiver 的 wechat_configs 下面用 message 配置使用前面定义的模板。例如：
+
+```yaml
+  wechat_configs:
+  - send_resolved: false
+    api_secret: <secret>
+    corp_id: ww9435adfc497d09f6
+    message: '{{ template "wechat.ys1000.message" . }}'  # <-------------
+```
+修改完配置文件之后请```kill -SIGHUP <pid>```或者用```curl -X POST http://<alertmanager endpoint>/-/reload```, 让 Alertmanager 重新加载配置。
+
+如果您使用 Prometheus Operator，请修改前面所定义的 AlertmanagerConfig 使用前面定义的模板，例如：
+```bash
+kubectl -n qiming-migration patch alertmanagerconfigs.monitoring.coreos.com ys1000-alertmanager-config --type=json -p='[{"op":"add","path":"/spec/receivers/1/wechatConfigs/0/message","value":"{{ template \"wechat.ys1000.message\" . }}"}]'
+```
+
+修改之后的receiver类似于：
+
+```
+name: webhook-and-wechat
+wechatConfigs:
+  - sendResolved: false
+    corpID: '<请替换为企业微信的企业ID>'
+    agentID: '<请替换为企业微信的agentID>'
+    toUser: <请替换为告警接收人的企业微信的用户账号>
+    apiSecret:
+      key: apiSecret
+      name: wechat-apisecret
+    message: '{{ template "wechat.ys1000.message" . }}'
+```
+
+配置完成以后发送到企业微信的告警就类似于：
+```
+==========异常告警==========
+告警类型: MigClusterNotReady
+告警级别: warning
+告警摘要: Cluster ccc is not ready.
+告警描述: Cluster ccc is not ready, connected state is false.
+告警详情: Cluster ccc is not ready, connected state is false. errors: . warnings: .
+故障时间: 2022-09-15 11:23:32
+Source: http://130.31.15.9:31828/graph?g0.expr=migcluster_status%7Bready%3D%22false%22%7D&g0.tab=1
+============END============
+Alertmanager URL: http://130.31.15.9:30445/#/alerts?receiver=qiming-migration%2Fys1000-alertmanager-config%2Fwebhook-and-wechat
+```
+其中Source和Alertmanager URL分别是 Prometheus 和 Alertmanager 的WEB UI地址，这两个地址需要分别在 Prometheus 和 Alertmanager 使用 --web.external-url 命令行参数正确配置才能访问；如果您使用 Prometheus Operator，对应的配置是 prometheuses.monitoring.coreos.com CR 和 alertmanagers.monitoring.coreos.com CR 的```.spec.externalUrl```字段。
+
+### 参考
+https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.AlertmanagerSpec
+
+https://prometheus.io/docs/alerting/latest/notifications/
 
 # Metrics 列表
 

@@ -5,6 +5,8 @@ metadata:
   labels:
     {{- include "cce-demo.labels" . | nindent 4 }}
 spec:
+  strategy:
+    type: Recreate
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -69,6 +71,8 @@ metadata:
   labels:
     {{- include "cce-demo.labels" . | nindent 4 }}
 spec:
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "cce-demo.selectorLabels" . | nindent 6 }}

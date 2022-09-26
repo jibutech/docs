@@ -9,7 +9,7 @@ image:
     # -- image repository
     repository: jibutech/cce-demo-frontend
     # -- image tag
-    tag: v0.0.1
+    tag: v0.0.2
     # -- image pull policy
     pullPolicy: IfNotPresent
   backend:

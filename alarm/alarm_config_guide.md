@@ -32,6 +32,7 @@ spec:
     path: /metrics
     port: http
     scheme: http
+    interval: 30s
     tlsConfig:
       insecureSkipVerify: true
   selector:
@@ -147,18 +148,18 @@ spec:
         description: Backup job {{$labels.backupjob}} to backup namespace {{$labels.namespaces}} in cluster {{$labels.migcluster}} using storage {{$labels.migstorage}} failed.
         summary: Backup job {{$labels.backupjob}} failed.
       expr: |-
-        backupjob_status{status="Failed"} > 0 UNLESS increase(backupjob_status{status="Failed"}[1m]) == 0
+        backupjob_status{status="Failed"} > 0 unless on(backupjob) (backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-biz-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
       labels:
-        severity: critical
+        severity: warning
     - alert: SelfBackupJobFailed
       annotations:
         content: 'Self backup job {{$labels.backupjob}} using storage {{$labels.migstorage}} failed: errors: {{$labels.errors}}. warnings: {{$labels.warnings}}.'
         description: Self backup job {{$labels.backupjob}} failed.
         summary: Self backup job {{$labels.backupjob}} failed.
       expr: |-
-        self_backupjob_status{status="Failed"} > 0 UNLESS increase(self_backupjob_status{status="Failed"}[1m]) == 0
+        self_backupjob_status{status="Failed"} > 0 unless on(backupjob) (self_backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-biz-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
       labels:
-        severity: critical
+        severity: warning
     - alert: BackupJobValidationError
       annotations:
         description: Backup job {{$labels.backupjob}} to backup namespace {{$labels.namespaces}} in cluster {{$labels.migcluster}} validation error.
@@ -167,7 +168,7 @@ spec:
       expr: |-
         backupjob_status{status="ValidationError"}
       labels:
-        severity: critical
+        severity: warning
     - alert: BackupJobLongRunning
       annotations:
         content:  'Backup job {{$labels.backupjob}} to backup namespace {{$labels.namespaces}} stay running for long time: errors: {{$labels.errors}}. warnings: {{$labels.warnings}}.'
@@ -176,7 +177,7 @@ spec:
       expr: |-
         backupjob_running_time_seconds > 3600
       labels:
-        severity: critical
+        severity: warning
 ```
 
 如果您没有使用 Prometheus Operator，则需要把上面配置的规则保存为规则配置文件，保存到 Prometheus 的规则文件目录，具体可以参考[ Prometheus 配置文档 ](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file)
@@ -187,7 +188,7 @@ spec:
 
 # 配置 alertmanager
 
-最后，我们来配置 alertmanager 来把告警发送出去。alertmanager 内置支持对接多种消息平台，包括邮件、企业微信、slack以及webhook等。我们也准备了一个示例 AlertmanagerConfig CR 提供给 Prometheus Operator 的用户直接安装用来把告警发送到企业微信：把下面代码保存为文件 alertmanager_config.yaml，然后用命令 ```kubectl apply -f alertmanager_config.yaml``` 即可完成配置（注意：请替换代码中尖括号(&lt;&gt;)内企业微信相关配置以匹配您的企业ID，agentID，secret，接收者账号等，具体请参考[企业微信文档](https://developer.work.weixin.qq.com/document/10013)。如果 YS1000 的安装命名空间不是qiming-migration，请修改下面的 namespace 配置以匹配 YS1000 安装的命名空间）。
+最后，我们来配置 alertmanager 来把告警发送出去。alertmanager 内置支持对接多种消息平台，包括邮件、企业微信、slack以及webhook等。我们也准备了一个示例 AlertmanagerConfig CR 提供给 Prometheus Operator 的用户直接安装用来把告警发送到企业微信：首先确保alertmanager的出口IP已经被添加到企业微信应用的白名单（管理员登录企业微信->应用管理->选择应用->企业可信IP->配置），然后把下面代码保存为文件 alertmanager_config.yaml，然后用命令 ```kubectl apply -f alertmanager_config.yaml``` 即可完成配置（注意：请替换代码中尖括号(&lt;&gt;)内企业微信相关配置以匹配您的企业ID，agentID，secret，接收者账号等，具体请参考[企业微信文档](https://developer.work.weixin.qq.com/document/10013)。如果 YS1000 的安装命名空间不是qiming-migration，请修改下面的 namespace 配置以匹配 YS1000 安装的命名空间）。
 ```yaml
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig

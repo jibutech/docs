@@ -14,7 +14,9 @@ helm install -n prometheus --create-namespace prometheus prometheus-community/ku
 
 # YS1000 metrics target
 
-YS1000 目前以 Kubernetes 服务暴露控制器的 metrics target，YS1000 安装以后会自动在安装的命名空间安装一个名为 mig-controller-biz-metrics 的服务，metrics 暴露在这个服务的 /metrics 路径，metrics 服务的CR上有标签```app.kubernetes.io/component: metrics```，配置时可以用这个标签筛选。
+YS1000 目前以 Kubernetes 服务暴露控制器的 metrics target，YS1000 安装以后会自动在安装的命名空间安装一个名为 mig-controller-metrics 的服务，metrics 暴露在这个服务的 /metrics 路径，metrics 服务的CR上有标签```app.kubernetes.io/component: metrics```，配置时可以用这个标签筛选。
+
+> 注意！在YS1000 2.9之前版本(2.8.2)中 metrics 服务的名字为 mig-controller-biz-metrics，如果您从2.8.2升级到2.9及以后的版本，请删除这个服务，并更新您的告警规则配置中对这个名字的引用为 mig-controller-metrics。
 
 如果您使用 Prometheus Operator (kube-prometheus已集成) 的话就再简单不过了，您可以创建 ServiceMonitor 来让 Prometheus 抓取 YS1000 的 metrics。只需要将下面代码保存为 ys1000_servicemonitor.yaml，然后执行 ```kubectl apply -f ys1000_servicemonitor.yaml``` 即可（注意：如果 YS1000 的安装命名空间不是qiming-migration，请修改下面的 namespace 配置以匹配 YS1000 安装的命名空间）。
 
@@ -97,7 +99,7 @@ spec:
         summary: Migcontroller disappeared from Prometheus target discovery.
         content: YS1000 controller disappeared from Prometheus target discovery, the YS1000 controller has probably crashed, please check immediately.
       expr: |-
-        absent(up{job="mig-controller-biz-metrics"} == 1)
+        absent(up{service="mig-controller-metrics"} == 1)
       for: 5m
       labels:
         severity: critical
@@ -148,7 +150,7 @@ spec:
         description: Backup job {{$labels.backupjob}} to backup namespace {{$labels.namespaces}} in cluster {{$labels.migcluster}} using storage {{$labels.migstorage}} failed.
         summary: Backup job {{$labels.backupjob}} failed.
       expr: |-
-        backupjob_status{status="Failed"} > 0 unless on(backupjob) (backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-biz-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
+        backupjob_status{status="Failed"} > 0 unless on(backupjob) (backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
       labels:
         severity: warning
     - alert: SelfBackupJobFailed
@@ -157,7 +159,7 @@ spec:
         description: Self backup job {{$labels.backupjob}} failed.
         summary: Self backup job {{$labels.backupjob}} failed.
       expr: |-
-        self_backupjob_status{status="Failed"} > 0 unless on(backupjob) (self_backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-biz-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
+        self_backupjob_status{status="Failed"} > 0 unless on(backupjob) (self_backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
       labels:
         severity: warning
     - alert: BackupJobValidationError

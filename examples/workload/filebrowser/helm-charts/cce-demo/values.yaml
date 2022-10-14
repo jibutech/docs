@@ -9,7 +9,7 @@ image:
     # -- image repository
     repository: jibutech/cce-demo-frontend
     # -- image tag
-    tag: v0.0.2
+    tag: v0.0.3
     # -- image pull policy
     pullPolicy: IfNotPresent
   backend:
@@ -62,7 +62,7 @@ ingress:
     - host: cce-demo.local
       paths:
         - path: /
-          pathType: ImplementationSpecific
+          pathType: Prefix
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

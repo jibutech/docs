@@ -14,9 +14,11 @@
 # S3_AK=xxx
 # S3_SK=xxx
 # S3_INSECURE=true
-# 2. Download `helmtool` from ... and put it to an executable path, like `/usr/local/bin`
+# 2. Download `helmtool` and put it to an executable path, like：
+#    docker cp $(docker create --rm registry.cn-shanghai.aliyuncs.com/jibutech/restore-job:release-2.9.0-latest):/usr/bin/helmtool /tmp/helmtool
+#    mv /tmp/helmtool /usr/local/bin/helmtool
 # 3. Setup `kubectl` and `helm` if not
-# 4. Run ./restore.sh
+# 4. Run this script ./self-restore-x.x.x.sh
 
 
 OS=$(uname)
@@ -65,7 +67,7 @@ helm install "restore-$RANDOM_SUFFIX" "${CHART}" \
     --set restore=true,velero.namespace="restore-agent-$RANDOM_SUFFIX" \
     --set s3Config.accessKey="${S3_AK}" --set s3Config.secretKey="${S3_SK}" \
     --set s3Config.bucket="${S3_BUCKET}" --set s3Config.s3Url="${S3_URL}" --set s3Config.region="${S3_REGION}" \
-    --set tags.clusterpedia=false
+    --set tags.clusterpedia=false --set tags.mysql=false
 set +x
 
 echo "Restore completed, removing temp resources"

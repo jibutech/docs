@@ -64,7 +64,8 @@ helm install "restore-$RANDOM_SUFFIX" "${CHART}" \
     --namespace "restore-$RANDOM_SUFFIX" --create-namespace --timeout 20m \
     --set restore=true,velero.namespace="restore-agent-$RANDOM_SUFFIX" \
     --set s3Config.accessKey="${S3_AK}" --set s3Config.secretKey="${S3_SK}" \
-    --set s3Config.bucket="${S3_BUCKET}" --set s3Config.s3Url="${S3_URL}" --set s3Config.region="${S3_REGION}"
+    --set s3Config.bucket="${S3_BUCKET}" --set s3Config.s3Url="${S3_URL}" --set s3Config.region="${S3_REGION}" \
+    --set tags.clusterpedia=false
 set +x
 
 echo "Restore completed, removing temp resources"

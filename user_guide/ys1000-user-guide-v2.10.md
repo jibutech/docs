@@ -287,24 +287,21 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-config-2.10.png)
 
-第一步，点击“创建备份策略”按钮进入备份策略添加页面，从YS1000 2.6版本开始，支持更加灵活的定时频率设置。
+第一步，点击“创建备份策略”按钮进入备份策略添加页面，从YS1000 2.10 版本开始，支持选择全量备份，之前版本创建的策略都是默认的永久增量。
 
-创建一个默认类型资源的文件拷贝策略，指定在每天 0:40，9:40，13:40和19:40开始备份。
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-entire-2.10.png)
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-file-2.6.png)
+创建一个默认类型资源的文件拷贝策略，指定每小时的15、45分开始备份。
 
-创建一个仅备份pvc数据卷的快照拷贝策略，指定在每星期一、三、五的10:15开始备份。
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-file-2.10.png)
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-snap-2.6.png)
+创建一个仅备份pvc数据卷的快照拷贝策略，指定在每隔2小时的30分开始备份。
 
-创建一个仅备份k8s资源的策略，每隔3小时执行一次，指定每次在10分开始备份。
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-snap-2.10.png)
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-k8s-2.6.png)
+创建一个仅备份k8s资源的策略，每周一、三、五的3点开始备份。
 
-从YS1000 2.8版本开始，支持最小15分钟间隔的频率设置。
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-min-2.8.0.png)
-
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-k8s-2.10.png)
 
 注意：若选择默认备份，则恢复时可恢复全部资源，或者选择仅恢复部分资源；
      若选择仅备份PVC数据卷，则恢复时只能对应选择仅恢复PVC数据卷；
@@ -317,17 +314,15 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 如果需要指定快照导出的执行时间，设置“是否立即导出所选快照”为“否”，指定快照导出的执行时间。
 则所选择的快照将在备份执行完成后在指定时间自动导出到备份仓库。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-exp1-2.6.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-exp1-2.10.png)
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-exp2-2.6.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-exp2-2.10.png)
 
-从YS1000 2.10 版本开始，支持选择全量备份。
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-create-entire-2.10.png)
 
 第二步，填写完成所需策略参数后点击“保存”，可查看策略页面新增的策略。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-list-2.10.png)
+
 
 ### 5.2 创建备份计划
 
@@ -756,7 +751,7 @@ https://github.com/jibutech/docs/blob/main/email-configuration.md
 
 -   第三步，在需要做恢复的集群上下载 
 
-    https://github.com/jibudata/yinhestor/blob/release-2.9.0/hack/restore.sh
+    https://github.com/jibutech/docs/blob/main/self-restore/self-restore-2.9.0.sh
     
     并按照脚本提示创建config文件，并填入自备份使用的s3信息
     

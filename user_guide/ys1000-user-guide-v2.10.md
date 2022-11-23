@@ -354,7 +354,6 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/create-backup5-2.10.png)
 
-第六步，点击“下一步”选择高级配置，支持定期的备份数据检查、定期归档和备份的网络限速（可选参数）。
 
 第六步，点击“下一步”选择高级配置，支持定期的备份数据检查、定期归档和备份的网络限速（可选参数）。
 

@@ -356,7 +356,20 @@ kubectl create -f deploy/kubernetes/snapshot-controller/
 
 第六步，点击“下一步”选择高级配置，支持定期的备份数据检查、定期归档和备份的网络限速（可选参数）。
 
+第六步，点击“下一步”选择高级配置，支持定期的备份数据检查、定期归档和备份的网络限速（可选参数）。
+
+  - 带数据卷的备份可勾选数据校验：
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/create-dataverify-2.10.png)
+
+  - 带数据卷的备份可勾选定期归档，并且需要属于归档的s3仓库：
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/create-archive-2.10.png)
+
+  - 网络限速（仅对数据传输有效）：
+
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/create-backup6-2.10.png)
+
 
 点击完成后，系统会自动对备份任务进行验证，查看备份列表中备份计划的状态是否“已就绪”。
 

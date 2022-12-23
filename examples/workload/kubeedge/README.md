@@ -2,13 +2,19 @@
 
 ## install cloudcore
 
-`helm install cloudcore ./cloudcore --namespace kubeedge --create-namespace -f ./cloudcore/values-ys1000-test.yaml`
+```
+helm install cloudcore ./cloudcore --namespace kubeedge --create-namespace -f ./cloudcore/values-ys1000-test.yaml
+kubectl apply -f ./cloudcore-svc-np.yaml
+```
 
-note: create and check nodeport cloudcore service
+
 
 ## get cloudcore token
 
-`keadm gettoken`
+```
+keadm gettoken
+ef68687f679bb6a79cd57d2c1a9b2a....
+```
 
 # on edge site
 
@@ -22,6 +28,12 @@ note: create and check nodeport cloudcore service
 
 ```
 keadm join --cloudcore-ipport=mycloudcore.ys1000.test.jibudata.com:30000 --edgenode-name=remote-node --token=ef68687f67... --certport=30002 
+
+# add taints to edge node to prevent normal workload scheduled on it
+taints:
+  - effect: NoSchedule
+    key: key1
+    value: value1
 ```
 
 ## check on k8s 

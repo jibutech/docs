@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Node
+metadata:
+  name: remote-node
+spec:
+  podCIDR: 10.100.0.0/24
+  podCIDRs:
+  - 10.100.0.0/24
+  taints:
+  - effect: NoSchedule
+    key: key1
+    value: value1

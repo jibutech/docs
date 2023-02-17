@@ -14,7 +14,9 @@ helm install -n prometheus --create-namespace prometheus prometheus-community/ku
 
 # YS1000 metrics target
 
-YS1000 目前以 Kubernetes 服务暴露控制器的 metrics target，YS1000 安装以后会自动在安装的命名空间安装一个名为 mig-controller-biz-metrics 的服务，metrics 暴露在这个服务的 /metrics 路径，metrics 服务的CR上有标签```app.kubernetes.io/component: metrics```，配置时可以用这个标签筛选。
+YS1000 目前以 Kubernetes 服务暴露控制器的 metrics target，YS1000 安装以后会自动在安装的命名空间安装一个名为 mig-controller-metrics 的服务，metrics 暴露在这个服务的 /metrics 路径，metrics 服务的CR上有标签```app.kubernetes.io/component: metrics```，配置时可以用这个标签筛选。
+
+> 注意！在YS1000 2.9之前版本(2.8.2)中 metrics 服务的名字为 mig-controller-biz-metrics，如果您从2.8.2升级到2.9及以后的版本，请删除这个服务，并更新您的告警规则配置中对这个名字的引用为 mig-controller-metrics。
 
 如果您使用 Prometheus Operator (kube-prometheus已集成) 的话就再简单不过了，您可以创建 ServiceMonitor 来让 Prometheus 抓取 YS1000 的 metrics。只需要将下面代码保存为 ys1000_servicemonitor.yaml，然后执行 ```kubectl apply -f ys1000_servicemonitor.yaml``` 即可（注意：如果 YS1000 的安装命名空间不是qiming-migration，请修改下面的 namespace 配置以匹配 YS1000 安装的命名空间）。
 
@@ -97,7 +99,7 @@ spec:
         summary: Migcontroller disappeared from Prometheus target discovery.
         content: YS1000 controller disappeared from Prometheus target discovery, the YS1000 controller has probably crashed, please check immediately.
       expr: |-
-        absent(up{job="mig-controller-biz-metrics"} == 1)
+        absent(up{service="mig-controller-metrics"} == 1)
       for: 5m
       labels:
         severity: critical
@@ -148,7 +150,7 @@ spec:
         description: Backup job {{$labels.backupjob}} to backup namespace {{$labels.namespaces}} in cluster {{$labels.migcluster}} using storage {{$labels.migstorage}} failed.
         summary: Backup job {{$labels.backupjob}} failed.
       expr: |-
-        backupjob_status{status="Failed"} > 0 unless on(backupjob) (backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-biz-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
+        backupjob_status{status="Failed"} > 0 unless on(backupjob) (backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
       labels:
         severity: warning
     - alert: SelfBackupJobFailed
@@ -157,7 +159,7 @@ spec:
         description: Self backup job {{$labels.backupjob}} failed.
         summary: Self backup job {{$labels.backupjob}} failed.
       expr: |-
-        self_backupjob_status{status="Failed"} > 0 unless on(backupjob) (self_backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-biz-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
+        self_backupjob_status{status="Failed"} > 0 unless on(backupjob) (self_backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
       labels:
         severity: warning
     - alert: BackupJobValidationError
@@ -307,6 +309,21 @@ spec:
           corpID: '<请替换为企业微信的企业ID>'
           agentID: '<请替换为企业微信的agentID>'
           toUser: <请替换为告警接收人的企业微信的用户账号>
+          message: |-
+            {{ `{{- if gt (len .Alerts.Firing) 0 -}}
+            {{- range $index, $alert := .Alerts -}}
+            ==========异常告警==========
+            告警类型: {{ $alert.Labels.alertname }}
+            告警级别: {{ $alert.Labels.severity }}
+            告警摘要: {{$alert.Annotations.summary}}
+            告警描述: {{ $alert.Annotations.description}}
+            告警详情: {{ $alert.Annotations.content }}
+            故障时间: {{ ($alert.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}
+            Source: {{ $alert.GeneratorURL }}
+            ============END============
+            {{- end }}
+            {{- end }}
+            Alertmanager URL: {{ template "__alertmanagerURL" . }} ` }}
           apiSecret:
             name: 'wechat-apisecret'
             key: 'apiSecret'
@@ -324,75 +341,6 @@ data:
 ```
 
 示例中各个告警的 repeatInterval 可以按需求调整，
-
-## 告警消息的定制
-
-Alertmanager 支持对告警消息进行定制，这里我们以微信告警消息为例。
-
-### 定义模板
-
-将下面的模板代码保存为文件 ys1000_wechat.tmpl
-```
-{{ define "wechat.ys1000.message" }}
-{{- if gt (len .Alerts.Firing) 0 -}}
-{{- range $index, $alert := .Alerts -}}
-==========异常告警==========
-告警类型: {{ $alert.Labels.alertname }}
-告警级别: {{ $alert.Labels.severity }}
-告警摘要: {{$alert.Annotations.summary}}
-告警描述: {{ $alert.Annotations.description}}
-告警详情: {{ $alert.Annotations.content }}
-故障时间: {{ ($alert.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}
-Source: {{ $alert.GeneratorURL }}
-============END============
-{{- end }}
-{{- end }}
-Alertmanager URL: {{ template "__alertmanagerURL" . }}
-{{- end }}
-```
-
-如果您没有使用 Prometheus Operator，请直接把 ys1000_wechat.tmpl 文件放入 /etc/alertmanager/config/ 目录。
-
-如果您使用了 Prometheus Operator，请修改 Prometheus 实例所对应的配置 secret，在data中增加一项，key为ys1000_wechat.tmpl，值为模板内容。例如：(请根据实际环境修改命令中的命名空间参数和secret名，secret 名为'alertmanager-<alertmanager-name>')
-
-```
-kubectl -n prometheus patch secrets alertmanager-prometheus-kube-prometheus-alertmanager -p="{\"data\":{\"ys1000_wechat.tmpl\":\"$(base64 ys1000_wechat.tmpl)\"}}"
-```
-
-### 使用模板
-
-修改 Alertmanager 的配置，使用这个模板
-
-如果您没有使用 Prometheus Operator，请修改 Alertmanager 的配置文件 在 receiver 的 wechat_configs 下面用 message 配置使用前面定义的模板。例如：
-
-```yaml
-  wechat_configs:
-  - send_resolved: false
-    api_secret: <secret>
-    corp_id: ww9435adfc497d09f6
-    message: '{{ template "wechat.ys1000.message" . }}'  # <-------------
-```
-修改完配置文件之后请```kill -SIGHUP <pid>```或者用```curl -X POST http://<alertmanager endpoint>/-/reload```, 让 Alertmanager 重新加载配置。
-
-如果您使用 Prometheus Operator，请修改前面所定义的 AlertmanagerConfig 使用前面定义的模板，例如：
-```bash
-kubectl -n qiming-migration patch alertmanagerconfigs.monitoring.coreos.com ys1000-alertmanager-config --type=json -p='[{"op":"add","path":"/spec/receivers/1/wechatConfigs/0/message","value":"{{ template \"wechat.ys1000.message\" . }}"}]'
-```
-
-修改之后的receiver类似于：
-
-```
-name: webhook-and-wechat
-wechatConfigs:
-  - sendResolved: false
-    corpID: '<请替换为企业微信的企业ID>'
-    agentID: '<请替换为企业微信的agentID>'
-    toUser: <请替换为告警接收人的企业微信的用户账号>
-    apiSecret:
-      key: apiSecret
-      name: wechat-apisecret
-    message: '{{ template "wechat.ys1000.message" . }}'
-```
 
 配置完成以后发送到企业微信的告警就类似于：
 ```
@@ -580,4 +528,44 @@ values: 导出备份任务处理时间
 labels: 同“已处理的备份任务数”
 
 values: 导出备份任务处理时间
+
+## processed_volume_backup_size_bytes
+(2.10.0 新增)
+
+类型: counter
+
+labels: 同“已处理的备份任务数”
+
+values: 已完成的备份任务已处理的持久卷中的数量
+
+## processing_volume_backup_size_bytes
+(2.10.0 新增)
+
+类型: gauge
+
+labels:
+
+| label名 | 说明 | 可能取值 | 备注 |
+|---------|------|----------|------|
+| backupplan | 备份计划名
+| backupjob | 备份任务名
+
+values: 进行中的备份任务已处理的持久卷中的数据量
+
+## backupjob_result
+(2.10.0 新增)
+
+类型: gauge
+
+labels:
+
+| label名 | 说明 | 可能取值 | 备注 |
+|---------|------|----------|------|
+| backupplan | 备份计划名
+| backupjob | 备份任务名
+| status | 状态 | Failed Succeeded Canceled Warning
+| export_status | 状态 | Failed Succeeded Canceled Warning
+| is_self_backup | 是否自备份 | true, false
+
+values: 始终是1
 

@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cce-demo-frontend
+  labels:
+    {{- include "cce-demo.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "cce-demo.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cce-demo-backend
+  labels:
+    {{- include "cce-demo.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "cce-demo.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to filebrowser!</title>
+<meta charset="utf-8">
+<style>
+html { color-scheme: light dark; }
+nav {
+  width: 16em;
+  position: fixed;
+  top: 4em;
+  left: 0;
+}
+main {
+  display: block;
+  min-height: 1em;
+  margin: 0 1em 1em auto;
+  width: calc(100% - 19em);
+}
+iframe {
+  position: fixed;
+  top: 0;
+  left: 19em;
+  display: block;
+  border: none;
+  height: 100%;
+  width: calc(100% - 19em);
+}
+iframe main header {
+  width:auto
+}
+</style>
+</head>
+<body>
+<h1>工具集合</h1>
+<nav class="menu">
+  <ul>
+    <li><a href="/filebrowser" target="content">文件共享</a></li>
+    <li><a href="#">About</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <p><em>Thank you for using.</em></p>
+</nav>
+
+<main>
+  <iframe name="content" width="90vw" height="100vh" src="/filebrowser"></iframe>
+</main>
+</body>
+</html>

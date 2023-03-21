@@ -264,7 +264,7 @@ users:
 
 第二步，填写完成所需策略参数后点击“保存”，可查看策略页面新增的策略。
 
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-list-2.10.png)
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/strategy-list-3.1.png)
 
 
 ### 5.2 创建备份计划

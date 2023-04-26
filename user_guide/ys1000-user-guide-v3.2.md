@@ -186,7 +186,9 @@ users:
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/etcd-button-3.2.png)
 
-第二步，在配置页面，勾选“启用ETCD备份”，选择“配置存储类”或“配置NFS存储”，输入ETCD所在节点的IP和私钥
+第二步，在配置页面，勾选“启用ETCD备份”，，如果需要同时备份集群证书，勾选“启用集群证书备份”，并填写证书的正确路径。
+
+选择“配置存储类”或“配置NFS存储”，输入ETCD所在节点的IP和私钥
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/etcd-config1-3.2.png)
 

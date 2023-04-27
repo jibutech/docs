@@ -206,6 +206,8 @@ users:
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/etcd-job-3.2.png)
 
+如何使用该备份数据进行集群恢复，请参考“etcd集群恢复文档”
+
 
 ### 4.3 配置数据备份仓库
 

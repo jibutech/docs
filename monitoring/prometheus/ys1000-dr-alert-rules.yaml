@@ -15,7 +15,7 @@ spec:
             summary: DrConfig {{$labels.name}} is not ready.
             content: "DrConfig {{$labels.name}} is not ready, please check immediately. errors: {{$labels.errors}}. warnings: {{$labels.warnings}}."
           expr: |-
-            absent(up{service="dr_config_status"} == 0)
+            dr_config_status == 0
           for: 5m
           labels:
             severity: critical
@@ -26,7 +26,7 @@ spec:
             summary: DrInstance {{$labels.name}} is not ready.
             content: "DrInstance {{$labels.name}} is not ready, please check immediately. errors: {{$labels.errors}}. warnings: {{$labels.warnings}}."
           expr: |-
-            absent(up{service="dr_instance_status"} == 0)
+            dr_instance_status == 0
           for: 5m
           labels:
             severity: critical
@@ -37,7 +37,7 @@ spec:
             summary: DrInstance {{$labels.name}} data rpo lagging more than 5 minutes.
             content: "DrInstance {{$labels.name}} data rpo lagging more than 5 minutes. current lagging: {{ $value }}s)"
           expr: |-
-            absent(up{service="dr_instance_data_expected_rpo-dr_instance_data_current_rpo"} > 300)
+            dr_instance_data_current_rpo - dr_instance_data_expected_rpo > 300
           for: 5m
           labels:
             severity: warnings
@@ -48,7 +48,7 @@ spec:
             summary: DrInstance {{$labels.name}} data rpo lagging more than 10 hours.
             content: "DrInstance {{$labels.name}} data rpo lagging more than 10 hours. current lagging: {{ $value }}s)"
           expr: |-
-            absent(up{service="dr_instance_data_expected_rpo-dr_instance_data_current_rpo"} > 36000)
+            dr_instance_data_current_rpo - dr_instance_data_expected_rpo > 36000
           for: 5m
           labels:
             severity: critical
@@ -59,7 +59,7 @@ spec:
             summary: DrInstance {{$labels.name}} resource rpo lagging more than 5 minutes.
             content: "DrInstance {{$labels.name}} resource rpo lagging more than 5 minutes. current lagging: {{ $value }}s)"
           expr: |-
-            absent(up{service="dr_instance_resource_expected_rpo-dr_instance_resource_current_rpo"} > 300)
+            dr_instance_resource_current_rpo - dr_instance_resource_expected_rpo > 300
           for: 5m
           labels:
             severity: warnings
@@ -70,7 +70,7 @@ spec:
             summary: DrInstance {{$labels.name}} resource rpo lagging more than 10 hours.
             content: "DrInstance {{$labels.name}} resource rpo lagging more than 10 hours. current lagging: {{ $value }}s)"
           expr: |-
-            absent(up{service="dr_instance_resource_expected_rpo-dr_instance_resource_current_rpo"} > 36000)
+            dr_instance_resource_current_rpo - dr_instance_resource_expected_rpo > 36000
           for: 5m
           labels:
             severity: critical

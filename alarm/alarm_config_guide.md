@@ -124,16 +124,6 @@ spec:
       for: 5m
       labels:
         severity: warning
-    - alert: SelfBackupPlanNotReady
-      annotations:
-        description: Self backup plan is not ready.
-        summary: Self backup plan is not ready.
-        content: 'Self backup plan is not ready. errors: {{$labels.errors}}. warnings: {{$labels.warnings}}.'
-      expr: |-
-        self_backupplan_status{ready="false"}
-      for: 5m
-      labels:
-        severity: warning
     - alert: BackupPlanNotReady
       annotations:
         description: Backup plan {{$labels.backupplan}} is not ready.
@@ -153,13 +143,13 @@ spec:
         backupjob_status{status="Failed"} > 0 unless on(backupjob) (backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
       labels:
         severity: warning
-    - alert: SelfBackupJobFailed
+    - alert: SelfBackupFailed
       annotations:
-        content: 'Self backup job {{$labels.backupjob}} using storage {{$labels.migstorage}} failed: errors: {{$labels.errors}}. warnings: {{$labels.warnings}}.'
-        description: Self backup job {{$labels.backupjob}} failed.
-        summary: Self backup job {{$labels.backupjob}} failed.
+        content: 'YS1000 Self backup failed.'
+        description: YS1000 Self backup failed.
+        summary: YS1000 Self backup failed.
       expr: |-
-        self_backupjob_status{status="Failed"} > 0 unless on(backupjob) (self_backupjob_status{status="Failed"} offset 1m) unless on() absent(up{service="mig-controller-metrics"} offset 1m) # the offset "1m" need to be greater than interval config in above servicemonitor
+        selfbackup_status{enabled="true", state!="Succeeded"}
       labels:
         severity: warning
     - alert: BackupJobValidationError
@@ -236,15 +226,6 @@ spec:
         matchers:
         - name: alertname
           matchType: =
-          value: SelfBackupPlanNotReady
-      - receiver: 'webhook-and-wechat'
-        groupBy: ['backupplan']
-        groupWait: 30s
-        groupInterval: 5m
-        repeatInterval: 30m
-        matchers:
-        - name: alertname
-          matchType: =
           value: BackupPlanNotReady
       - receiver: 'webhook-and-wechat'
         groupBy: ['backupjob']
@@ -265,14 +246,13 @@ spec:
           matchType: =
           value: BackupJobValidationError
       - receiver: 'webhook-and-wechat'
-        groupBy: ['backupjob']
         groupWait: 0s # please keep 0s
         groupInterval: 1m
         repeatInterval: 5m
         matchers:
         - name: alertname
           matchType: =
-          value: SelfBackupJobFailed
+          value: SelfBackupFailed
       - receiver: 'webhook-and-wechat'
         groupBy: ['backupjob']
         groupWait: 0s # please keep 0s
@@ -428,14 +408,6 @@ values:
 
 1: 未就绪
 
-## self_backupplan_status 自备份计划状态
-
-类型: gauge
-
-labels: 同备份计划状态
-
-values: 同备份计划状态
-
 ## backupjob_status 备份任务状态
 
 类型: gauge
@@ -457,13 +429,18 @@ labels:
 
 values: 始终是1
 
-## self_backupjob_status 自备份任务状态
+## selfbackup_status 自备份状态
+(3.4.0 新增)
 
 类型: gauge
+labels:
 
-labels: 同备份任务状态
+| label名 | 说明 | 可能取值 | 备注 |
+|---------|------|----------|------|
+| enabled | 是否已启用自备份 | true false
+| state | 自备份状态 | Succeeded Failed InProgress
 
-values: 同备份任务状态
+value: unix time of last successful/failed self backup, 0.0 otherwise.
 
 ## backupjob_running_time_seconds 备份任务运行时间
 
@@ -493,7 +470,6 @@ labels:
 |---------|------|----------|------|
 | backupplan | 备份计划名
 | status | 状态 | Failed Succeeded Canceled
-| is_self_backup | 是否自备份 | true, false
 
 values: 已处理的备份任务数
 
@@ -551,21 +527,4 @@ labels:
 | backupjob | 备份任务名
 
 values: 进行中的备份任务已处理的持久卷中的数据量
-
-## backupjob_result
-(2.10.0 新增)
-
-类型: gauge
-
-labels:
-
-| label名 | 说明 | 可能取值 | 备注 |
-|---------|------|----------|------|
-| backupplan | 备份计划名
-| backupjob | 备份任务名
-| status | 状态 | Failed Succeeded Canceled Warning
-| export_status | 状态 | Failed Succeeded Canceled Warning
-| is_self_backup | 是否自备份 | true, false
-
-values: 始终是1
 

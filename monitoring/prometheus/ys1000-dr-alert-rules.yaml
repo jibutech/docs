@@ -19,7 +19,7 @@ spec:
           for: 5m
           labels:
             severity: critical
-            namespace: qiming-migration
+            alertSource: ys1000-dr
         - alert: DrInstanceNotReady
           annotations:
             description: DrInstance {{$labels.name}} is not ready.
@@ -30,7 +30,7 @@ spec:
           for: 5m
           labels:
             severity: critical
-            namespace: qiming-migration
+            alertSource: ys1000-dr
         - alert: DrInstanceDataRPOLagging
           annotations:
             description: DrInstance {{$labels.name}} data rpo lagging.
@@ -41,7 +41,7 @@ spec:
           for: 5m
           labels:
             severity: warnings
-            namespace: qiming-migration
+            alertSource: ys1000-dr
         - alert: DrInstanceDataRPOLaggingLong
           annotations:
             description: DrInstance {{$labels.name}} data rpo lagging long.
@@ -52,7 +52,7 @@ spec:
           for: 5m
           labels:
             severity: critical
-            namespace: qiming-migration
+            alertSource: ys1000-dr
         - alert: DrInstanceResourceRPOLagging
           annotations:
             description: DrInstance {{$labels.name}} resource rpo lagging.
@@ -63,7 +63,7 @@ spec:
           for: 5m
           labels:
             severity: warnings
-            namespace: qiming-migration
+            alertSource: ys1000-dr
         - alert: DrInstanceResourceRPOLaggingLong
           annotations:
             description: DrInstance {{$labels.name}} resource rpo lagging long.
@@ -74,4 +74,4 @@ spec:
           for: 5m
           labels:
             severity: critical
-            namespace: qiming-migration
+            alertSource: ys1000-dr

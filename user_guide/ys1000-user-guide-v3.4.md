@@ -749,15 +749,8 @@ https://github.com/jibutech/docs/blob/main/alarm/alarm_config_guide.md
 
 ## 14. 产品限制
 
-
 -   PVC的类型暂时不支持Host Path方式
-
--   如果Pod自带有emptyDir类型的Volume，备份会出错
-
-    解决方法：对要备份的Pod加一个annotation：
-
-    `kubectl -n <namespace> annotate pod/<podname> backup.velero.io/backup-volumes-excludes=<volumename>`
-
+-   Pod emptyDir类型数据卷会默认过滤，不进行数据备份
 -   取消备份、恢复、迁移任务后，不会对已经生成的资源进行回退，需要手动检查环境并删除，或者使用内置resource-cleaner钩子程序
 
 

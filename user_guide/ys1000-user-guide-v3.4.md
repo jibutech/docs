@@ -37,13 +37,10 @@
     - [9.5 取消迁移作业](#95-取消迁移作业)
 - [10. 钩子程序](#10-钩子程序)
     - [10.1 创建钩子程序](#101-创建钩子程序)
-- [11. 配置作业报告](#11-配置作业报告)
-- [12. 配置移动端实时告警](#12-配置移动端实时告警)
-- [13. YS1000的自备份与恢复](#13-YS1000的自备份与恢复)
-- [14. 产品限制](#14-产品限制)
-- [15. 故障与诊断](#15-故障与诊断)
-    - [15.1 日志收集](#151-日志收集)
-    - [15.2 常见问题](#152-常见问题)
+- [11. 产品限制](#11-产品限制)
+- [12. 故障与诊断](#12-故障与诊断)
+    - [12.1 日志收集](#121-日志收集)
+    - [12.2 常见问题](#122-常见问题)
 
 
 ## 1. 银数多云数据管家典型用户场景介绍
@@ -671,92 +668,18 @@ kubectl cp qiming-backend/stub-59d755df87-wr5ml:yscli ./yscli
 再点击“查看日志”，检查其可执行性
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/hook-log-3.1.png)
-
-
-## 11. 配置作业报告
-
-在银数多云数据管家左侧菜单栏中选择“配置”进入配置页面。
-
-![](https://gitee.com/jibutech/tech-docs/raw/master/images/config-3.1.png)
-
-目前支持配置邮件和微信报告。
-
-在创建邮件报告中，填写正确smtp地址和port，以及发送人邮箱地址。
-
-如邮箱无需验证，则关闭验证按钮；如需验证，打开验证按钮，并填写正确授权码或者用户名密码。
-
-在创建微信报告中，填写正确微信地址。
-
-填写发送时间（目前仅支持每天指定一个时间点），打开启用，点击“保存”，便可在该时间点收到每天的作业执行报告。
-
-邮件和微信相关参数配置可参考：
-
-https://github.com/jibutech/docs/blob/main/email-configuration.md
-
-
-## 12. 配置移动端实时告警
-
-从YS1000 v2.8.4 版本开始，支持实时告警：
-
-https://github.com/jibutech/docs/blob/main/alarm/alarm_config_guide.md
-
-
-## 13. YS1000的自备份与恢复
-
--   自备份：
-
-    从YS1000 v3.1版本开始，引入了新的自备份机制，用户只要在添加备份仓库时勾选“用于YS1000元数据备份/恢复”并创建，就默认开启自备份（默认自备份间隔时间5分钟，最多保留50份，可通过cr修改）
-
-    ![](https://gitee.com/jibutech/tech-docs/raw/master/images/self-restore-s3-3.1.png)
-
--   自恢复：
-
-    第一步，在需要恢复的集群上直接安装或者通过helmtool安装对应的ys1000版本。
-    
-    **【注意】新创建的YS1000所在命名空间必须与原集群一致；如果用于自备份/恢复的s3创建曾创建过备份/恢复或dr任务等，添加时必须与原来名字一致。 **
-    
-    - YS1000安装与升级，参考
-
-      https://github.com/jibutech/helm-charts/blob/main/README.md
-
-
-    - 通过helmtool安装并下载S3中保存的参数：
-     
-      1.安装helmtool
-
-      ```
-      docker pull registry.cn-shanghai.aliyuncs.com/jibutech/helm-tool:release-3.4.0
-      ```
-
-      2.下载对应版本和参数的helm chart到本地tmp目录
-      
-      ```
-      docker run -v /tmp:/tmp registry.cn-shanghai.aliyuncs.com/jibutech/helm-tool:release-3.4.0 pull --access-key <default-s3-access-key> --secret-key <default-s3-secret-key>  --region <default-s3-region>  --bucket  <default-s3-bucket> --url <default-s3-url> --insecure=true -d /tmp --untar
-      ```
-
-      3.进入tmp目录安装YS1000
-
-      ```
-      helm install ys1000 ./ys1000/ -n ys1000 --create-namespace -f ./ys1000/my-values.yaml
-      ```
-
-
-    第二步，等待YS1000 中所有pod正常运行后，登录前端添加之前用于自备份的s3为数据备份仓库，并勾选“用于YS1000元数据备份/恢复”，点击创建，在弹框点击“是”
-
-    ![](https://gitee.com/jibutech/tech-docs/raw/master/images/self-restore-yes-3.1.png)
-
     
 
-## 14. 产品限制
+## 11. 产品限制
 
 -   PVC的类型暂时不支持Host Path方式
 -   Pod emptyDir类型数据卷会默认过滤，不进行数据备份
 -   取消备份、恢复、迁移任务后，不会对已经生成的资源进行回退，需要手动检查环境并删除，或者使用内置resource-cleaner钩子程序
 
 
-## 15. 故障与诊断
+## 12. 故障与诊断
 
-### 15.1 日志收集
+### 12.1 日志收集
 
 使用Helm安装YS1000的时可以指定YS1000的控制组件所使用的命名空间名字， 默认命令空间名为ys1000， YS1000的备份引擎安装在用户集群名为qiming-backend的命名空间内， 因此需要分别对控制组件和备份引擎进行日志收集。
 
@@ -926,7 +849,7 @@ Compress logs to /tmp/qiming-migration-logs-1634223960.63.tar
 -rw-r--r-- 1 root root 15M 10月 14 23:11 /tmp/qiming-migration-logs-1634223960.63.tar
 ```
 
-### 15.2 常见问题
+### 12.2 常见问题
 
 
 - 快照备份不工作  

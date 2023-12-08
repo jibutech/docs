@@ -474,6 +474,75 @@ groups:
     for: 30m
     labels:
       severity: warning
+- name: ys1000-dr-healthy
+  rules:
+  - alert: DrConfigNotReady
+    annotations:
+      content: 'DrConfig {{$labels.name}} is not ready, please check immediately.
+        errors: {{$labels.errors}}. warnings: {{$labels.warnings}}.'
+      description: DrConfig {{$labels.name}} is not ready.
+      summary: DrConfig {{$labels.name}} is not ready.
+    expr: dr_config_status == 0
+    for: 5m
+    labels:
+      alertSource: ys1000-dr
+      severity: critical
+  - alert: DrInstanceNotReady
+    annotations:
+      content: 'DrInstance {{$labels.name}} is not ready, please check immediately.
+        errors: {{$labels.errors}}. warnings: {{$labels.warnings}}.'
+      description: DrInstance {{$labels.name}} is not ready.
+      summary: DrInstance {{$labels.name}} is not ready.
+    expr: dr_instance_status == 0
+    for: 5m
+    labels:
+      alertSource: ys1000-dr
+      severity: critical
+  - alert: DrInstanceDataRPOLagging
+    annotations:
+      content: 'DrInstance {{$labels.name}} data rpo lagging more than 5 minutes.
+        current lagging: {{ $value }}s'
+      description: DrInstance {{$labels.name}} data rpo lagging.
+      summary: DrInstance {{$labels.name}} data rpo lagging more than 5 minutes.
+    expr: 36000 > dr_instance_data_current_rpo - dr_instance_data_expected_rpo > 300
+    for: 5m
+    labels:
+      alertSource: ys1000-dr
+      severity: warnings
+  - alert: DrInstanceDataRPOLaggingLong
+    annotations:
+      content: 'DrInstance {{$labels.name}} data rpo lagging more than 10 hours. current
+        lagging: {{ $value }}s'
+      description: DrInstance {{$labels.name}} data rpo lagging long.
+      summary: DrInstance {{$labels.name}} data rpo lagging more than 10 hours.
+    expr: dr_instance_data_current_rpo - dr_instance_data_expected_rpo > 36000
+    for: 5m
+    labels:
+      alertSource: ys1000-dr
+      severity: critical
+  - alert: DrInstanceResourceRPOLagging
+    annotations:
+      content: 'DrInstance {{$labels.name}} resource rpo lagging more than 5 minutes.
+        current lagging: {{ $value }}s'
+      description: DrInstance {{$labels.name}} resource rpo lagging.
+      summary: DrInstance {{$labels.name}} resource rpo lagging more than 5 minutes.
+    expr: 36000 > dr_instance_resource_current_rpo - dr_instance_resource_expected_rpo
+      > 300
+    for: 5m
+    labels:
+      alertSource: ys1000-dr
+      severity: warnings
+  - alert: DrInstanceResourceRPOLaggingLong
+    annotations:
+      content: 'DrInstance {{$labels.name}} resource rpo lagging more than 10 hours.
+        current lagging: {{ $value }}s'
+      description: DrInstance {{$labels.name}} resource rpo lagging long.
+      summary: DrInstance {{$labels.name}} resource rpo lagging more than 10 hours.
+    expr: dr_instance_resource_current_rpo - dr_instance_resource_expected_rpo > 36000
+    for: 5m
+    labels:
+      alertSource: ys1000-dr
+      severity: critical
 ```
 
 ### 自定义告警规则

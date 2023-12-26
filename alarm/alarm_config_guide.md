@@ -734,6 +734,34 @@ https://prometheus.io/docs/alerting/latest/notifications/
 
 # Metrics 列表
 
+## mail_delivery_status 邮件发送状态
+(3.7.0 新增)
+
+类型: gauge
+
+labels:
+
+| label名 | 说明 | 可能取值 | 备注 |
+|---------|------|----------|------|
+| type | 消息类型 | DailyReport
+| state | 消息状态 | Succeeded, Failed
+
+values: 消息发送时间
+
+## wechat_delivery_status 微信发送状态
+(3.7.0 新增)
+
+类型: gauge
+
+labels:
+
+| label名 | 说明 | 可能取值 | 备注 |
+|---------|------|----------|------|
+| type | 消息类型 | DailyReport
+| state | 消息状态 | Succeeded, Failed
+
+values: 消息发送时间
+
 ## migcluster_status 集群状态
 
 类型: gauge

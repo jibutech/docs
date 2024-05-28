@@ -541,9 +541,21 @@ kubectl cp qiming-backend/stub-59d755df87-wr5ml:yscli ./yscli
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore5-3.9.png)
 
-从YS1000 v3.9.1 版本开始支持恢复时进行资源配置修改，点击“下一步”，勾选“是否需要额外对ConfigMap, Secret, Ingress, Service等其他任意资源以及数据卷进行修改”。
+从YS1000 v3.9.1 版本开始支持恢复时进行资源配置修改，点击“下一步”，勾选“是否需要额外对ConfigMap, Secret, Ingress, Service等其他任意资源以及数据卷进行修改”。（恢复任务暂时不支持数据卷的修改，迁移任务支持，其他选项两者一致）。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore6-3.9.png)
+
+选择修改 ConfigMap 或 Secret 时，只能修改data中的字段键值对，如：
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore6-edit-configmap-3.9.png)
+
+选择修改 Ingress 时，可以添加修改或删除注释，如：
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore6-edit-ingress-3.9.png)
+
+选择修改 Service 时，可以修改服务类型、服务端口的参数和服务的注释，如：
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/restore6-edit-service-3.9.png)
 
 点击“完成”按钮后，恢复任务创建成功，系统会自动对恢复任务进行验证，并按照恢复策略指定的时间进行恢复。
 
@@ -656,9 +668,17 @@ kubectl cp qiming-backend/stub-59d755df87-wr5ml:yscli ./yscli
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/mig-create-5-3.9.png)
 
-从YS1000 v3.9.1 版本开始支持恢复时进行资源配置修改，点击“下一步”，勾选“是否需要额外对ConfigMap, Secret, Ingress, Service等其他任意资源以及数据卷进行修改”。
+从YS1000 v3.9.1 版本开始支持恢复时进行资源配置修改，点击“下一步”，勾选“是否需要额外对ConfigMap, Secret, Ingress, Service等其他任意资源以及数据卷进行修改”。（恢复任务暂时不支持数据卷的修改，迁移任务支持，其他选项两者一致）。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/mig-create-6-3.9.png)
+
+选择修改数据卷时，可以将intree或hostpath的数据转换成pvc数据卷，如：
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/mig-create-6-edit-intree-3.9.png)
+
+选择修改任意资源，则可以更加灵活的修改其他资源参数，如：
+
+![](https://gitee.com/jibutech/tech-docs/raw/master/images/mig-create-6-edit-resource-3.9.png)
 
 最后点击完成，可以在迁移计划右侧点击详情，查看迁移计划的具体内容。
 

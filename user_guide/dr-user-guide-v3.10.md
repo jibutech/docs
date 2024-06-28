@@ -26,7 +26,7 @@
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/dr-3.10-license.png)
 
-确认容灾功能可用后，点击“高级功能设置”，并打开容灾功能，点击“确认”。
+确认容灾功能可用后，点击“高级功能设置”，默认打开容灾功能，可根据数据同步类型的需要打开VolSync插件，点击“确认”。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/dr-3.10-feature.png)
 

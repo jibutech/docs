@@ -459,6 +459,8 @@ users:
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/cluster-backup-list-3.10.png)
 
+如何使用该备份数据进行集群恢复，请参考：https://github.com/jibutech/docs/blob/main/user_guide/etcd-recover-guide.md
+
 
 ### 6.4 执行备份任务
 

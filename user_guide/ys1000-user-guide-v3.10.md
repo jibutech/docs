@@ -455,7 +455,7 @@ users:
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/create-cluster-backup4-3.10.png)
 
-点击保存后，集群备份列表更新。
+点击完成后，集群备份列表更新。
 
 ![](https://gitee.com/jibutech/tech-docs/raw/master/images/cluster-backup-list-3.10.png)
 
